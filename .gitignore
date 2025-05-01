@@ -1,0 +1,19 @@
+# Ignore virtual environments
+.venv/
+
+# Ignore Python cache and logs
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# VSCode(if u choose that oogabooga over pycharm) and PyCharm
+.vscode/
+.idea/
+
+# Output folders
+dist/
+build/
+
+# Environment variables
+.env
