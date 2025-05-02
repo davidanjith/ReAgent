@@ -1,9 +1,16 @@
-from fastapi import FastAPI, Query
-from ArXiv_utils import search_arxiv
+from fastapi import FastAPI, HTTPException
+from core_agent.summary_pipeline import summarize_topic
 
 app = FastAPI()
 
-@app.get("/search")
-def search_papers(query: str = Query(..., description="Search term for ArXiv")):
-    results = search_arxiv(query)
-    return {"results": results}
+@app.post("/summarize/")
+async def summarize_topic_route(user_input: str):
+    try:
+        result = summarize_topic(user_input)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to ReAgent API!"}
