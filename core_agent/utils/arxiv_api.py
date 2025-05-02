@@ -2,8 +2,10 @@
 
 import requests
 import xml.etree.ElementTree as ET
+from dotenv import load_dotenv
+import os
 
-ARXIV_API = "http://export.arxiv.org/api/query"
+ARXIV_API = os.getenv("ARXIV_API")
 
 def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
     query = '+AND+'.join(f'all:{kw}' for kw in keywords)
