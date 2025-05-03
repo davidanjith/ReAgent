@@ -2,7 +2,6 @@
 
 import requests
 import os
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()  # Load environment variables from .env file
@@ -20,9 +19,15 @@ def query_ollama(prompt: str) -> str:
     response.raise_for_status()
     return response.json()["response"].strip()
 
+
 def extract_keywords(text: str) -> list[str]:
-    # TODO: Replace with real Ollama inference
-    return text.lower().split()[:5]  # dummy keyword extraction
+    prompt = (
+        f"Extract 5 to 7 important keywords from the following user query "
+        f"that can be used to search for research papers:\n\n\"{text}\"\n\n"
+        "Return only a comma-separated list of keywords."
+    )
+    response = query_ollama(prompt)
+    return [kw.strip() for kw in response.split(',')]
 
 
 def summarize_papers(papers: list[dict]) -> str:
@@ -40,3 +45,4 @@ def summarize_papers(papers: list[dict]) -> str:
 
     # Returning the summarized content
     return summary
+

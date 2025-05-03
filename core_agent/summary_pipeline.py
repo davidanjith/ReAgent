@@ -1,16 +1,6 @@
 # Keyword extraction, ArXiv search and summarization
 from core_agent.utils.arxiv_api import search_arxiv
 from core_agent.ollama_client import extract_keywords, summarize_papers
-from core_agent.ollama_client import query_ollama
-
-def extract_keywords(user_input: str) -> list[str]:
-    prompt = (
-        f"Extract 5 to 7 important keywords from the following user query "
-        f"that can be used to search for research papers:\n\n\"{user_input}\"\n\n"
-        "Return only a comma-separated list of keywords."
-    )
-    response = query_ollama(prompt)
-    return [kw.strip() for kw in response.split(',')]
 
 def summarize_topic(user_input: str) -> dict:
     """
