@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 ARXIV_API = "https://export.arxiv.org/api/query"
 
 def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
-    query = '+AND+'.join(f'all:{kw}' for kw in keywords)
+    query = '+OR+'.join(f'all:"{kw.replace("_", " ")}"' for kw in keywords[:3])
     params = {
         'search_query': query,
         'start': 0,
@@ -17,6 +17,9 @@ def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
 
     response = requests.get(ARXIV_API, params=params)
     response.raise_for_status()
+
+    print("URL:", response.url)
+    print("Response snippet:", response.text[:500])
 
     root = ET.fromstring(response.content)
     ns = {'atom': 'http://www.w3.org/2005/Atom'}

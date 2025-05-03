@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+color: var(--theme-color);
 <head>
   <meta charset="UTF-8">
   <title>ReAgent - Retro Research Assistant</title>
   <style>
+    :root {
+      --theme-color: #40ff40;
+    }
     body {
       margin: 0;
       font-family: 'Courier New', monospace;
       background-color: black;
-      color: #00FF00;
+      color: var(--theme-color);
     }
     .container {
       display: flex;
@@ -20,7 +24,7 @@
     }
     .left-panel {
       width: 40%;
-      border-right: 2px solid #00FF00;
+      border-right: 2px solid var(--theme-color);
       display: flex;
       flex-direction: column;
     }
@@ -32,8 +36,8 @@
       width: 100%;
       height: 100px;
       background-color: black;
-      color: #00FF00;
-      border: 2px solid #00FF00;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
       padding: 10px;
       font-size: 16px;
       resize: none;
@@ -45,8 +49,8 @@
       padding: 10px;
       width: 100%;
       background-color: black;
-      color: #00FF00;
-      border: 2px solid #00FF00;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
       font-size: 16px;
       cursor: pointer;
     }
@@ -54,10 +58,10 @@
       margin-top: 10px;
       flex-grow: 1;
       height: calc(100vh - 300px); /* Adjust based on space taken by textarea, button, and responseBox */
-      border: 2px solid #00FF00;
+      border: 2px solid var(--theme-color);
     }
     .paper-card {
-      border-bottom: 1px dashed #00FF00;
+      border-bottom: 1px dashed var(--theme-color);
       padding: 10px 0;
       cursor: pointer;
     }
@@ -68,8 +72,8 @@
       margin-top: 10px;
       padding: 10px;
       background-color: black;
-      color: #00FF00;
-      border: 2px solid #00FF00;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
       font-family: 'Courier New', monospace;
       white-space: pre-wrap;
       max-height: 50vh;
@@ -80,12 +84,12 @@
     }
     #responseBox::-webkit-scrollbar-track {
       background-color: black;
-      border-left: 2px solid #00FF00;
+      border-left: 2px solid var(--theme-color);
     }
     #responseBox::-webkit-scrollbar-thumb {
-      background-color: #00FF00;
+      background-color: var(--theme-color);
       border: 2px solid black;
-      box-shadow: inset 0 0 5px #00FF00;
+      box-shadow: inset 0 0 5px var(--theme-color);
     }
     .paper-container {
       width: 100%;
@@ -94,7 +98,7 @@
     }
     .paper-tabs {
       display: flex;
-      border-bottom: 2px solid #00FF00;
+      border-bottom: 2px solid var(--theme-color);
       padding: 10px;
       justify-content: flex-start;
       background-color: #000000;
@@ -103,22 +107,24 @@
     .paper-tab {
       padding: 10px 20px;
       cursor: pointer;
-      color: #00FF00;
+      color: var(--theme-color);
       font-weight: bold;
       border-radius: 5px 5px 0 0;
       background-color: #444;
       margin-right: 5px;
+      margin-top: 7px;
       transition: all 0.3s ease;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
     }
     .paper-tab.active {
-      background-color: #00FF00;
+      background-color: var(--theme-color);
+      margin-bottom: -13px;
+      margin-top: -5px;
       color: black;
-      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.9);
-      transform: translateY(-10px);
+      transform: translateY(-5px);
     }
     .paper-tab:hover {
-      background-color: #00FF00;
+      background-color: var(--theme-color);
       color: black;
       box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
     }
@@ -214,10 +220,10 @@
     }
 
     const paperList = [
-      { title: "Paper 1 Title", pdf: "https://arxiv.org/pdf/2101.00001.pdf" },
-      { title: "Paper 2 Title", pdf: "https://arxiv.org/pdf/2101.00002.pdf" },
-      { title: "Paper 3 Title", pdf: "https://arxiv.org/pdf/2101.00003.pdf" },
-      { title: "Paper 4 Title", pdf: "https://arxiv.org/pdf/2101.00004.pdf" }
+      { title: "Paper 1", pdf: "https://arxiv.org/pdf/2101.00001.pdf" },
+      { title: "Paper 2", pdf: "https://arxiv.org/pdf/2101.00002.pdf" },
+      { title: "Paper 3", pdf: "https://arxiv.org/pdf/2101.00003.pdf" },
+      { title: "Paper 4", pdf: "https://arxiv.org/pdf/2101.00004.pdf" }
     ];
 
     // Call renderPapers when the page loads

@@ -10,9 +10,11 @@ class SummarizeRequest(BaseModel):
 @app.post("/summarize/")
 async def summarize_topic_route(request: SummarizeRequest):
     try:
+        print("USER INPUT:", request.user_input)  # Debug line
         result = summarize_topic(request.user_input)
         return result
     except Exception as e:
+        print("ERROR:", e)  # Log to console
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/")
