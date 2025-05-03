@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+color: var(--theme-color);
+<head>
+  <meta charset="UTF-8">
+  <title>ReAgent - Retro Research Assistant</title>
+  <style>
+    :root {
+      --theme-color: #40ff40;
+    }
+    body {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      background-color: black;
+      color: var(--theme-color);
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+    .left-panel, .right-panel {
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .left-panel {
+      width: 40%;
+      border-right: 2px solid var(--theme-color);
+      display: flex;
+      flex-direction: column;
+    }
+    .right-panel {
+      width: 60%;
+      overflow-y: scroll;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      background-color: black;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
+      padding: 10px;
+      font-size: 16px;
+      resize: none;
+      box-sizing: border-box;
+      margin: 0;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      background-color: black;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #visualization {
+      margin-top: 10px;
+      flex-grow: 1;
+      height: calc(100vh - 300px); /* Adjust based on space taken by textarea, button, and responseBox */
+      border: 2px solid var(--theme-color);
+    }
+    .paper-card {
+      border-bottom: 1px dashed var(--theme-color);
+      padding: 10px 0;
+      cursor: pointer;
+    }
+    .paper-card h3 {
+      margin: 0 0 5px;
+    }
+    #responseBox {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: black;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    #responseBox::-webkit-scrollbar {
+      width: 14px;
+    }
+    #responseBox::-webkit-scrollbar-track {
+      background-color: black;
+      border-left: 2px solid var(--theme-color);
+    }
+    #responseBox::-webkit-scrollbar-thumb {
+      background-color: var(--theme-color);
+      border: 2px solid black;
+      box-shadow: inset 0 0 5px var(--theme-color);
+    }
+    .paper-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    .paper-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--theme-color);
+      padding: 10px;
+      justify-content: flex-start;
+      background-color: #000000;
+      position: relative;
+    }
+    .paper-tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      color: var(--theme-color);
+      font-weight: bold;
+      border-radius: 5px 5px 0 0;
+      background-color: #444;
+      margin-right: 5px;
+      margin-top: 7px;
+      transition: all 0.3s ease;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+    .paper-tab.active {
+      background-color: var(--theme-color);
+      margin-bottom: -13px;
+      margin-top: -5px;
+      color: black;
+      transform: translateY(-5px);
+    }
+    .paper-tab:hover {
+      background-color: var(--theme-color);
+      color: black;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+    }
+    .paper-content {
+      height: calc(100% - 50px);
+      overflow: auto;
+      position: absolute;
+      top: 50px;
+      width: 100%;
+      background-color: #000;
+    }
+    #pdf-container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <textarea id="promptInput" placeholder="Type your research query..."></textarea>
+      <button onclick="fetchPapers()">Fetch Papers</button>
+      <div id="responseBox"></div>
+      <div id="visualization">[ D3 Visualization Area ]</div>
+    </div>
+    <div class="right-panel" id="papersContainer">
+      <!-- Research paper results will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    async function fetchPapers() {
+      const prompt = document.getElementById('promptInput').value;
+      const res = await fetch('http://localhost:8000/get_papers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const data = await res.json();
+      renderPapers(data.papers);
+      // visualizeTokens(data.tokenMap); // Add your D3 function here if tokenMap exists
+    }
+
+    let currentPaperIndex = 0; // To track the currently displayed paper
+
+    function renderPapers(papers) {
+      const container = document.getElementById('papersContainer');
+      container.innerHTML = '';
+
+      const paperContainer = document.createElement('div');
+      paperContainer.className = 'paper-container';
+
+      // Paper tabs
+      const paperTabs = document.createElement('div');
+      paperTabs.className = 'paper-tabs';
+      papers.forEach((paper, index) => {
+        const tab = document.createElement('div');
+        tab.className = 'paper-tab';
+        tab.innerText = paper.title;
+        tab.onclick = () => displayPaper(index);
+        if (index === currentPaperIndex) tab.classList.add('active');
+        paperTabs.appendChild(tab);
+      });
+
+      // Paper content area
+      const paperContent = document.createElement('div');
+      paperContent.className = 'paper-content';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = papers[currentPaperIndex].pdf;
+      iframe.width = "100%";
+      iframe.height = "100%";
+      paperContent.appendChild(iframe);
+
+      paperContainer.appendChild(paperTabs);
+      paperContainer.appendChild(paperContent);
+
+      container.appendChild(paperContainer);
+    }
+
+    function displayPaper(index) {
+      currentPaperIndex = index;
+      const paperTabs = document.querySelectorAll('.paper-tab');
+      paperTabs.forEach((tab, idx) => {
+        if (idx === currentPaperIndex) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      renderPapers(paperList); // Re-render papers with updated active tab
+    }
+
+    const paperList = [
+      { title: "Paper 1", pdf: "https://arxiv.org/pdf/2101.00001.pdf" },
+      { title: "Paper 2", pdf: "https://arxiv.org/pdf/2101.00002.pdf" },
+      { title: "Paper 3", pdf: "https://arxiv.org/pdf/2101.00003.pdf" },
+      { title: "Paper 4", pdf: "https://arxiv.org/pdf/2101.00004.pdf" }
+    ];
+
+    // Call renderPapers when the page loads
+    window.onload = function() {
+      renderPapers(paperList);
+    };
+
+    function simulateModelTyping(responseText) {
+      const box = document.getElementById('responseBox');
+      box.innerHTML = '';
+      let index = 0;
+
+      function type() {
+        if (index < responseText.length) {
+          box.innerHTML += responseText.charAt(index);
+          index++;
+          box.scrollTop = box.scrollHeight;
+          setTimeout(type, 30);
+        }
+      }
+
+      type();
+    }
+
+    const sampleResponse = `Analyzing your prompt...\n\nRelevant topics found:\n- Deep Learning\n- Reinforcement Learning\n\nSearching papers...\n\nTop result: 'Policy Gradients in Reinforcement Learning' by Schulman et al.`;
+
+    document.querySelector("button").addEventListener("click", () => {
+      simulateModelTyping(sampleResponse);
+    });
+  </script>
+</body>
+</html>
