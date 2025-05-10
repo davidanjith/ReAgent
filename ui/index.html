@@ -22,7 +22,7 @@
     }
     .left-panel, .right-panel {
       padding: 20px;
-      box-sizing: border-box;
+      box-sizing: border-box; 
     }
     .left-panel {
       width: 40%;
@@ -474,55 +474,44 @@
     }
 
     async function loadFullText(paperId) {
-      try {
-        // Extract the arXiv ID from the full URL if present
-        if (paperId.includes('arxiv.org')) {
-          paperId = paperId.split('/').pop();
-        }
-        // Remove version suffix if present
-        if (paperId.includes('v')) {
-          paperId = paperId.split('v')[0];
-        }
+        try {
+            // Extract the arXiv ID from the full URL if present
+            if (paperId.startsWith('http')) {
+                paperId = paperId.split('/').pop();
+            }
+            // Remove version suffix if present
+            if (paperId.includes('v')) {
+                paperId = paperId.split('v')[0];
+            }
 
-        // First try to get the paper details
-        const paperDetails = await fetch(`http://localhost:8000/paper/${paperId}`);
-        if (!paperDetails.ok) {
-          throw new Error('Failed to get paper details');
+            const response = await fetch(`/api/papers/${paperId}/full-text`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            // Update the paper content
+            const paperContent = document.getElementById('paperContent');
+            paperContent.innerHTML = `
+                <div class="paper-text">
+                    <h2>${currentPaper.title}</h2>
+                    <p class="authors">${currentPaper.authors.join(', ')}</p>
+                    <p class="abstract"><strong>Abstract:</strong> ${currentPaper.abstract}</p>
+                    <div class="full-text">${data.text}</div>
+                </div>
+            `;
+            
+            // Enable text selection and highlighting
+            paperContent.style.userSelect = 'text';
+            paperContent.style.webkitUserSelect = 'text';
+            
+            // Add click handler for text selection
+            paperContent.addEventListener('mouseup', handleTextSelection);
+            
+        } catch (error) {
+            console.error('Error loading full text:', error);
+            alert('Error loading full text. Please try again.');
         }
-        const paper = await paperDetails.json();
-
-        // Then try to get the full text
-        const response = await fetch(`http://localhost:8000/paper/${paperId}/full-text`);
-        if (response.ok) {
-          const data = await response.json();
-          const paperContent = document.querySelector('.paper-content');
-          
-          // Remove existing full text if any
-          const existingFullText = paperContent.querySelector('.full-text');
-          if (existingFullText) {
-            existingFullText.remove();
-          }
-
-          const fullTextDiv = document.createElement('div');
-          fullTextDiv.className = 'full-text';
-          fullTextDiv.innerHTML = `
-            <h3>Full Text</h3>
-            <div class="highlightable">${data.text || paper.abstract}</div>
-          `;
-          paperContent.appendChild(fullTextDiv);
-
-          // Add text selection event listeners to the new content
-          const highlightableElements = fullTextDiv.querySelectorAll('.highlightable');
-          highlightableElements.forEach(element => {
-            element.addEventListener('mouseup', handleTextSelection);
-          });
-        } else {
-          throw new Error('Failed to load full text');
-        }
-      } catch (error) {
-        console.error('Error loading full text:', error);
-        showError(error.message || 'Failed to load full text');
-      }
     }
 
     function simulateModelTyping(responseText) {
@@ -549,6 +538,11 @@
     });
 
     function updateKnowledgeGraph(graphData) {
+        if (!graphData || !graphData.nodes || !graphData.edges) {
+            console.error('Invalid graph data:', graphData);
+            return;
+        }
+
         const width = document.getElementById('visualization').clientWidth;
         const height = document.getElementById('visualization').clientHeight;
 
@@ -560,97 +554,90 @@
             .append('svg')
             .attr('width', width)
             .attr('height', height)
-            .attr('viewBox', [-width / 2, -height / 2, width, height])
             .style('font', '10px sans-serif')
             .style('user-select', 'none');
 
-        // Create a force simulation
-        const simulation = d3.forceSimulation()
-            .force('link', d3.forceLink().id(d => d.id).distance(100))
-            .force('charge', d3.forceManyBody().strength(-300))
-            .force('center', d3.forceCenter(width / 2, height / 2));
+        // Create a hierarchy from the graph data
+        const root = d3.hierarchy({
+            name: "root",
+            children: graphData.nodes.map(node => ({
+                name: node,
+                value: 1,
+                children: graphData.edges
+                    .filter(edge => edge.source === node)
+                    .map(edge => ({
+                        name: edge.target,
+                        value: 1
+                    }))
+            }))
+        })
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
 
-        // Create links
-        const link = svg.append('g')
-            .selectAll('line')
-            .data(graphData.edges)
-            .enter()
-            .append('line')
-            .attr('stroke', '#40ff40')
-            .attr('stroke-opacity', 0.6)
-            .attr('stroke-width', 1);
+        // Create the circle pack layout
+        const pack = d3.pack()
+            .size([width, height])
+            .padding(3);
 
-        // Create nodes
-        const node = svg.append('g')
-            .selectAll('circle')
-            .data(graphData.nodes)
-            .enter()
-            .append('circle')
-            .attr('r', 5)
-            .attr('fill', '#40ff40')
-            .call(d3.drag()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended));
+        // Apply the layout to the hierarchy
+        const packed = pack(root);
 
-        // Add labels
-        const label = svg.append('g')
-            .selectAll('text')
-            .data(graphData.nodes)
-            .enter()
-            .append('text')
-            .text(d => d)
-            .attr('font-size', 12)
-            .attr('fill', '#40ff40')
-            .attr('dx', 12)
-            .attr('dy', 4);
-
-        // Update positions on each tick
-        simulation.nodes(graphData.nodes).on('tick', () => {
-            link
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
-
-            node
-                .attr('cx', d => d.x)
-                .attr('cy', d => d.y);
-
-            label
-                .attr('x', d => d.x)
-                .attr('y', d => d.y);
-        });
-
-        // Add links to the simulation
-        simulation.force('link').links(graphData.edges);
-
-        // Drag functions
-        function dragstarted(event) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-        }
-
-        function dragged(event) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-        }
-
-        function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-        }
+        // Create a group for zooming
+        const g = svg.append('g');
 
         // Add zoom behavior
         const zoom = d3.zoom()
             .scaleExtent([0.1, 8])
             .on('zoom', (event) => {
-                svg.selectAll('g').attr('transform', event.transform);
+                g.attr('transform', event.transform);
             });
 
         svg.call(zoom);
+
+        // Create circles
+        const node = g.selectAll('g')
+            .data(packed.descendants())
+            .join('g')
+            .attr('transform', d => `translate(${d.x},${d.y})`);
+
+        // Add circles
+        node.append('circle')
+            .attr('r', d => d.r)
+            .attr('fill', d => d.depth === 0 ? 'none' : d.depth === 1 ? '#40ff40' : '#1a1a1a')
+            .attr('stroke', '#40ff40')
+            .attr('stroke-width', d => d.depth === 0 ? 0 : 1)
+            .style('cursor', 'pointer')
+            .on('click', (event, d) => {
+                if (d.depth > 0) {
+                    // Zoom to the clicked node
+                    svg.transition()
+                        .duration(750)
+                        .call(zoom.transform, d3.zoomIdentity
+                            .translate(width / 2, height / 2)
+                            .scale(4)
+                            .translate(-d.x, -d.y));
+                }
+            });
+
+        // Add labels
+        node.append('text')
+            .attr('dy', '0.3em')
+            .text(d => d.depth === 0 ? '' : d.data.name)
+            .style('fill', '#40ff40')
+            .style('text-anchor', 'middle')
+            .style('pointer-events', 'none')
+            .style('font-size', d => Math.min(2 * d.r, 12) + 'px')
+            .style('opacity', d => d.r > 20 ? 1 : 0);
+
+        // Add tooltips
+        node.append('title')
+            .text(d => d.depth === 0 ? '' : d.data.name);
+
+        // Initial zoom to fit
+        svg.call(zoom.transform, d3.zoomIdentity
+            .translate(width / 2, height / 2)
+            .scale(0.8)
+            .translate(-packed.x, -packed.y));
     }
 
     async function sendChatMessage() {
@@ -703,6 +690,119 @@
       }
 
       chatInput.value = '';
+    }
+
+    async function searchPapers() {
+        const query = document.getElementById('searchInput').value;
+        if (!query) return;
+
+        try {
+            const response = await fetch(`/api/papers/search?query=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const papers = await response.json();
+            
+            // Update paper list
+            const paperList = document.getElementById('paperList');
+            paperList.innerHTML = papers.map(paper => `
+                <div class="paper-item" onclick="selectPaper('${paper.entry_id}')">
+                    <h3>${paper.title}</h3>
+                    <p>${paper.authors.join(', ')}</p>
+                    <p class="abstract">${paper.abstract}</p>
+                    <button onclick="event.stopPropagation(); loadFullText('${paper.entry_id}')">Load Full Text</button>
+                </div>
+            `).join('');
+
+            // Ingest papers and create concept hierarchy
+            const ingestResponse = await fetch('/api/papers/ingest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(papers)
+            });
+            
+            if (ingestResponse.ok) {
+                const graphData = await ingestResponse.json();
+                updateKnowledgeGraph(graphData);
+            }
+
+        } catch (error) {
+            console.error('Error searching papers:', error);
+            alert('Error searching papers. Please try again.');
+        }
+    }
+
+    function handleTextSelection() {
+        const selection = window.getSelection();
+        if (selection.toString().length > 0) {
+            const range = selection.getRangeAt(0);
+            const selectedText = selection.toString();
+            
+            // Create highlight button
+            const button = document.createElement('button');
+            button.className = 'highlight-button';
+            button.textContent = 'Highlight';
+            button.onclick = () => analyzeHighlightedText(selectedText);
+            
+            // Position the button near the selection
+            const rect = range.getBoundingClientRect();
+            button.style.position = 'absolute';
+            button.style.left = `${rect.left + window.scrollX}px`;
+            button.style.top = `${rect.bottom + window.scrollY + 5}px`;
+            
+            // Remove any existing highlight buttons
+            document.querySelectorAll('.highlight-button').forEach(btn => btn.remove());
+            
+            // Add the new button
+            document.body.appendChild(button);
+        }
+    }
+
+    async function analyzeHighlightedText(text) {
+        if (!text || !currentPaper) return;
+        
+        try {
+            // Extract the arXiv ID from the full URL if present
+            let paperId = currentPaper.entry_id;
+            if (paperId.startsWith('http')) {
+                paperId = paperId.split('/').pop();
+            }
+            if (paperId.includes('v')) {
+                paperId = paperId.split('v')[0];
+            }
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: text,
+                    paper_id: paperId
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update chat
+            addMessage('user', text);
+            addMessage('assistant', data.response);
+            
+            // Update visualization
+            if (data.knowledge_graph) {
+                updateKnowledgeGraph(data.knowledge_graph);
+            }
+            
+        } catch (error) {
+            console.error('Error analyzing text:', error);
+            alert('Error analyzing text. Please try again.');
+        }
     }
   </script>
 </body>
