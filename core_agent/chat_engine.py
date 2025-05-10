@@ -127,6 +127,26 @@ class ChatEngine:
 
     def get_knowledge_graph(self) -> Dict:
         """
-        Return the current state of the knowledge graph
+        Get the current state of the knowledge graph
         """
-        return self.knowledge_graph 
+        # Ensure nodes are unique and properly formatted
+        nodes = list(set(self.knowledge_graph["nodes"]))
+        
+        # Create edges with proper source and target indices
+        edges = []
+        for edge in self.knowledge_graph["edges"]:
+            try:
+                source_idx = nodes.index(edge["source"])
+                target_idx = nodes.index(edge["target"])
+                edges.append({
+                    "source": source_idx,
+                    "target": target_idx,
+                    "type": edge.get("type", "related")
+                })
+            except ValueError:
+                continue  # Skip edges with nodes that don't exist
+        
+        return {
+            "nodes": nodes,
+            "edges": edges
+        } 
