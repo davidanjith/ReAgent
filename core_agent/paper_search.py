@@ -56,6 +56,15 @@ class PaperSearch:
         """
         try:
             logger.info(f"Getting details for paper: {paper_id}")
+            
+            # Extract the arXiv ID from the full URL if present
+            if 'arxiv.org' in paper_id:
+                paper_id = paper_id.split('/')[-1]
+            
+            # Remove version suffix if present (e.g., v1, v2)
+            if 'v' in paper_id:
+                paper_id = paper_id.split('v')[0]
+            
             search = arxiv.Search(id_list=[paper_id])
             results = list(self.client.results(search))
             

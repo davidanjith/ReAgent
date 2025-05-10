@@ -84,10 +84,41 @@ async def process_highlight(request: HighlightRequest):
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/paper/{paper_id}")
+async def get_paper_details(paper_id: str):
+    try:
+        logger.info(f"Getting details for paper: {paper_id}")
+        paper_details = await paper_search.get_paper_details(paper_id)
+        return paper_details
+    except Exception as e:
+        logger.error(f"Error in get_paper_details: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/paper/{paper_id}/full-text")
+async def get_paper_full_text(paper_id: str):
+    try:
+        logger.info(f"Getting full text for paper: {paper_id}")
+        paper_details = await paper_search.get_paper_details(paper_id)
+        # For now, return the abstract as full text
+        # TODO: Implement actual full text extraction
+        return {"text": paper_details["abstract"]}
+    except Exception as e:
+        logger.error(f"Error in get_paper_full_text: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/knowledge-graph/")
 async def get_knowledge_graph():
     try:
-        return chat_engine.get_knowledge_graph()
+        graph_data = chat_engine.get_knowledge_graph()
+        # Ensure the graph data has the correct format
+        if not isinstance(graph_data, dict) or "nodes" not in graph_data or "edges" not in graph_data:
+            graph_data = {
+                "nodes": [],
+                "edges": []
+            }
+        return graph_data
     except Exception as e:
         logger.error(f"Error in get_knowledge_graph: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
