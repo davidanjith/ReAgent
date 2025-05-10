@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-color: var(--theme-color);
+
 <head>
   <meta charset="UTF-8">
-  <title>ReAgent - Retro Research Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReAgent - Research Paper Analysis</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
     :root {
       --theme-color: #40ff40;
@@ -57,8 +59,9 @@ color: var(--theme-color);
     #visualization {
       margin-top: 10px;
       flex-grow: 1;
-      height: calc(100vh - 300px); /* Adjust based on space taken by textarea, button, and responseBox */
+      height: calc(100vh - 300px);
       border: 2px solid var(--theme-color);
+      background-color: black;
     }
     .paper-card {
       border-bottom: 1px dashed var(--theme-color);
@@ -157,15 +160,66 @@ color: var(--theme-color);
 
   <script>
     async function fetchPapers() {
-      const prompt = document.getElementById('promptInput').value;
-      const res = await fetch('http://localhost:8000/get_papers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      renderPapers(data.papers);
-      // visualizeTokens(data.tokenMap); // Add your D3 function here if tokenMap exists
+      try {
+        const prompt = document.getElementById('promptInput').value;
+        if (!prompt.trim()) {
+          showError("Please enter a search query");
+          return;
+        }
+
+        showLoading(true);
+        const res = await fetch('http://localhost:8000/search/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: prompt, max_results: 5 })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.detail || 'Failed to fetch papers');
+        }
+
+        const data = await res.json();
+        if (!data.papers || data.papers.length === 0) {
+          showError("No papers found for your query");
+          return;
+        }
+
+        // Update the response box with actual search results
+        const responseBox = document.getElementById('responseBox');
+        responseBox.innerHTML = `Found ${data.papers.length} papers matching your query.`;
+
+        // Render the papers
+        renderPapers(data.papers);
+
+        // Update the knowledge graph
+        const graphRes = await fetch('http://localhost:8000/knowledge-graph/');
+        if (graphRes.ok) {
+          const graphData = await graphRes.json();
+          updateKnowledgeGraph(graphData);
+        }
+      } catch (error) {
+        showError(error.message);
+        console.error('Error fetching papers:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function showError(message) {
+      const responseBox = document.getElementById('responseBox');
+      responseBox.innerHTML = `<div style="color: #ff4444;">❌ ${message}</div>`;
+    }
+
+    function showLoading(isLoading) {
+      const button = document.querySelector('button');
+      if (isLoading) {
+        button.disabled = true;
+        button.textContent = 'Searching...';
+      } else {
+        button.disabled = false;
+        button.textContent = 'Fetch Papers';
+      }
     }
 
     let currentPaperIndex = 0; // To track the currently displayed paper
@@ -193,11 +247,19 @@ color: var(--theme-color);
       const paperContent = document.createElement('div');
       paperContent.className = 'paper-content';
 
-      const iframe = document.createElement('iframe');
-      iframe.src = papers[currentPaperIndex].pdf;
-      iframe.width = "100%";
-      iframe.height = "100%";
-      paperContent.appendChild(iframe);
+      // Display paper details
+      const paperDetails = document.createElement('div');
+      paperDetails.className = 'paper-details';
+      const currentPaper = papers[currentPaperIndex];
+      paperDetails.innerHTML = `
+        <h2>${currentPaper.title}</h2>
+        <p><strong>Authors:</strong> ${currentPaper.authors.join(', ')}</p>
+        <p><strong>Published:</strong> ${currentPaper.published}</p>
+        <p><strong>Categories:</strong> ${currentPaper.categories.join(', ')}</p>
+        <p><strong>Abstract:</strong> ${currentPaper.abstract}</p>
+        <a href="${currentPaper.pdf_url}" target="_blank" class="pdf-link">View PDF</a>
+      `;
+      paperContent.appendChild(paperDetails);
 
       paperContainer.appendChild(paperTabs);
       paperContainer.appendChild(paperContent);
@@ -216,20 +278,18 @@ color: var(--theme-color);
         }
       });
 
-      renderPapers(paperList); // Re-render papers with updated active tab
+      // Get the current papers from the container
+      const papers = Array.from(document.querySelectorAll('.paper-tab')).map(tab => ({
+        title: tab.innerText,
+        authors: [], // These will be populated from the API response
+        published: '',
+        categories: [],
+        abstract: '',
+        pdf_url: ''
+      }));
+      
+      renderPapers(papers);
     }
-
-    const paperList = [
-      { title: "Paper 1", pdf: "https://arxiv.org/pdf/2101.00001.pdf" },
-      { title: "Paper 2", pdf: "https://arxiv.org/pdf/2101.00002.pdf" },
-      { title: "Paper 3", pdf: "https://arxiv.org/pdf/2101.00003.pdf" },
-      { title: "Paper 4", pdf: "https://arxiv.org/pdf/2101.00004.pdf" }
-    ];
-
-    // Call renderPapers when the page loads
-    window.onload = function() {
-      renderPapers(paperList);
-    };
 
     function simulateModelTyping(responseText) {
       const box = document.getElementById('responseBox');
@@ -253,6 +313,105 @@ color: var(--theme-color);
     document.querySelector("button").addEventListener("click", () => {
       simulateModelTyping(sampleResponse);
     });
+
+    function updateKnowledgeGraph(graphData) {
+        const width = document.getElementById('visualization').clientWidth;
+        const height = document.getElementById('visualization').clientHeight;
+
+        // Clear previous visualization
+        d3.select('#visualization').selectAll('*').remove();
+
+        // Create SVG
+        const svg = d3.select('#visualization')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('viewBox', [-width / 2, -height / 2, width, height])
+            .style('font', '10px sans-serif')
+            .style('user-select', 'none');
+
+        // Create a hierarchy from the graph data
+        const root = d3.hierarchy({
+            name: "root",
+            children: graphData.nodes.map(node => ({
+                name: node,
+                value: 1,
+                children: graphData.edges
+                    .filter(edge => edge.source === node)
+                    .map(edge => ({
+                        name: edge.target,
+                        value: 1
+                    }))
+            }))
+        })
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
+
+        // Create the circle pack layout
+        const pack = d3.pack()
+            .size([width, height])
+            .padding(3);
+
+        // Apply the layout to the hierarchy
+        const packed = pack(root);
+
+        // Create a group for zooming
+        const g = svg.append('g');
+
+        // Add zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on('zoom', (event) => {
+                g.attr('transform', event.transform);
+            });
+
+        svg.call(zoom);
+
+        // Create circles
+        const node = g.selectAll('g')
+            .data(packed.descendants())
+            .join('g')
+            .attr('transform', d => `translate(${d.x},${d.y})`);
+
+        // Add circles
+        node.append('circle')
+            .attr('r', d => d.r)
+            .attr('fill', d => d.depth === 0 ? 'none' : d.depth === 1 ? '#40ff40' : '#1a1a1a')
+            .attr('stroke', '#40ff40')
+            .attr('stroke-width', d => d.depth === 0 ? 0 : 1)
+            .style('cursor', 'pointer')
+            .on('click', (event, d) => {
+                if (d.depth > 0) {
+                    // Zoom to the clicked node
+                    svg.transition()
+                        .duration(750)
+                        .call(zoom.transform, d3.zoomIdentity
+                            .translate(width / 2, height / 2)
+                            .scale(4)
+                            .translate(-d.x, -d.y));
+                }
+            });
+
+        // Add labels
+        node.append('text')
+            .attr('dy', '0.3em')
+            .text(d => d.depth === 0 ? '' : d.data.name)
+            .style('fill', '#40ff40')
+            .style('text-anchor', 'middle')
+            .style('pointer-events', 'none')
+            .style('font-size', d => Math.min(2 * d.r, 12) + 'px')
+            .style('opacity', d => d.r > 20 ? 1 : 0);
+
+        // Add tooltips
+        node.append('title')
+            .text(d => d.depth === 0 ? '' : d.data.name);
+
+        // Initial zoom to fit
+        svg.call(zoom.transform, d3.zoomIdentity
+            .translate(width / 2, height / 2)
+            .scale(0.8)
+            .translate(-packed.x, -packed.y));
+    }
   </script>
 </body>
 </html>
