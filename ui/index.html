@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-color: var(--theme-color);
+
 <head>
   <meta charset="UTF-8">
-  <title>ReAgent - Retro Research Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReAgent - Research Paper Analysis</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
     :root {
       --theme-color: #40ff40;
@@ -57,8 +59,14 @@ color: var(--theme-color);
     #visualization {
       margin-top: 10px;
       flex-grow: 1;
-      height: calc(100vh - 300px); /* Adjust based on space taken by textarea, button, and responseBox */
+      height: calc(100vh - 300px);
       border: 2px solid var(--theme-color);
+      background-color: black;
+      position: relative;
+    }
+    #visualization svg {
+      width: 100%;
+      height: 100%;
     }
     .paper-card {
       border-bottom: 1px dashed var(--theme-color);
@@ -135,10 +143,90 @@ color: var(--theme-color);
       top: 50px;
       width: 100%;
       background-color: #000;
+      padding: 20px;
     }
     #pdf-container {
       width: 100%;
       height: 100%;
+    }
+    .highlighted-text {
+      background-color: rgba(64, 255, 64, 0.2);
+      cursor: pointer;
+      position: relative;
+    }
+    .highlighted-text:hover {
+      background-color: rgba(64, 255, 64, 0.4);
+    }
+    .highlight-actions {
+      position: absolute;
+      top: -30px;
+      right: 0;
+      background-color: black;
+      border: 2px solid var(--theme-color);
+      padding: 5px;
+      display: none;
+      z-index: 1000;
+    }
+    .highlighted-text:hover .highlight-actions {
+      display: flex;
+      gap: 5px;
+    }
+    .highlight-button {
+      padding: 5px 10px;
+      background-color: black;
+      color: var(--theme-color);
+      border: 1px solid var(--theme-color);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .highlight-button:hover {
+      background-color: var(--theme-color);
+      color: black;
+    }
+    .chat-input {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .chat-input input {
+      flex-grow: 1;
+      background-color: black;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
+      padding: 10px;
+      font-size: 16px;
+    }
+    .chat-input button {
+      width: auto;
+      margin: 0;
+    }
+    .paper-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .pdf-button, .full-text-button {
+      padding: 10px 20px;
+      background-color: black;
+      color: var(--theme-color);
+      border: 2px solid var(--theme-color);
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    .pdf-button:hover, .full-text-button:hover {
+      background-color: var(--theme-color);
+      color: black;
+    }
+    .full-text {
+      margin-top: 20px;
+      padding: 20px;
+      border: 2px solid var(--theme-color);
+      border-radius: 5px;
+    }
+    .full-text h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
     }
   </style>
 </head>
@@ -157,20 +245,75 @@ color: var(--theme-color);
 
   <script>
     async function fetchPapers() {
-      const prompt = document.getElementById('promptInput').value;
-      const res = await fetch('http://localhost:8000/get_papers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await res.json();
-      renderPapers(data.papers);
-      // visualizeTokens(data.tokenMap); // Add your D3 function here if tokenMap exists
+      try {
+        const prompt = document.getElementById('promptInput').value;
+        if (!prompt.trim()) {
+          showError("Please enter a search query");
+          return;
+        }
+
+        showLoading(true);
+        const res = await fetch('http://localhost:8000/search/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: prompt, max_results: 5 })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.detail || 'Failed to fetch papers');
+        }
+
+        const data = await res.json();
+        if (!data.papers || data.papers.length === 0) {
+          showError("No papers found for your query");
+          return;
+        }
+
+        // Update the response box with actual search results
+        const responseBox = document.getElementById('responseBox');
+        responseBox.innerHTML = `Found ${data.papers.length} papers matching your query.`;
+
+        // Render the papers
+        renderPapers(data.papers);
+
+        // Update the knowledge graph
+        const graphRes = await fetch('http://localhost:8000/knowledge-graph/');
+        if (graphRes.ok) {
+          const graphData = await graphRes.json();
+          updateKnowledgeGraph(graphData);
+        }
+      } catch (error) {
+        showError(error.message);
+        console.error('Error fetching papers:', error);
+      } finally {
+        showLoading(false);
+      }
     }
 
-    let currentPaperIndex = 0; // To track the currently displayed paper
+    function showError(message) {
+      const responseBox = document.getElementById('responseBox');
+      responseBox.innerHTML = `<div style="color: #ff4444;">❌ ${message}</div>`;
+    }
+
+    function showLoading(isLoading) {
+      const button = document.querySelector('button');
+      if (isLoading) {
+        button.disabled = true;
+        button.textContent = 'Searching...';
+      } else {
+        button.disabled = false;
+        button.textContent = 'Fetch Papers';
+      }
+    }
+
+    let currentPaperIndex = 0;
+    let currentPapers = []; // Store the current papers data
+    let currentHighlightedText = null;
+    let currentHighlightedSpan = null;
 
     function renderPapers(papers) {
+      currentPapers = papers; // Store the papers data
       const container = document.getElementById('papersContainer');
       container.innerHTML = '';
 
@@ -193,11 +336,32 @@ color: var(--theme-color);
       const paperContent = document.createElement('div');
       paperContent.className = 'paper-content';
 
-      const iframe = document.createElement('iframe');
-      iframe.src = papers[currentPaperIndex].pdf;
-      iframe.width = "100%";
-      iframe.height = "100%";
-      paperContent.appendChild(iframe);
+      // Display paper details
+      const paperDetails = document.createElement('div');
+      paperDetails.className = 'paper-details';
+      const currentPaper = papers[currentPaperIndex];
+      paperDetails.innerHTML = `
+        <h2>${currentPaper.title}</h2>
+        <p><strong>Authors:</strong> ${currentPaper.authors.join(', ')}</p>
+        <p><strong>Published:</strong> ${currentPaper.published}</p>
+        <p><strong>Categories:</strong> ${currentPaper.categories.join(', ')}</p>
+        <p><strong>Abstract:</strong> <span class="highlightable">${currentPaper.abstract}</span></p>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Ask about this paper...">
+          <button onclick="sendChatMessage()">Send</button>
+        </div>
+        <div class="paper-actions">
+          <button onclick="openPDF('${currentPaper.pdf_url}')" class="pdf-button">View PDF</button>
+          <button onclick="loadFullText('${currentPaper.entry_id}')" class="full-text-button">Load Full Text</button>
+        </div>
+      `;
+      paperContent.appendChild(paperDetails);
+
+      // Add text selection event listeners
+      const highlightableElements = paperContent.querySelectorAll('.highlightable');
+      highlightableElements.forEach(element => {
+        element.addEventListener('mouseup', handleTextSelection);
+      });
 
       paperContainer.appendChild(paperTabs);
       paperContainer.appendChild(paperContent);
@@ -216,20 +380,150 @@ color: var(--theme-color);
         }
       });
 
-      renderPapers(paperList); // Re-render papers with updated active tab
+      // Re-render papers with the stored data
+      renderPapers(currentPapers);
     }
 
-    const paperList = [
-      { title: "Paper 1", pdf: "https://arxiv.org/pdf/2101.00001.pdf" },
-      { title: "Paper 2", pdf: "https://arxiv.org/pdf/2101.00002.pdf" },
-      { title: "Paper 3", pdf: "https://arxiv.org/pdf/2101.00003.pdf" },
-      { title: "Paper 4", pdf: "https://arxiv.org/pdf/2101.00004.pdf" }
-    ];
+    function openPDF(pdfUrl) {
+      // Open PDF in a new tab
+      window.open(pdfUrl, '_blank');
+    }
 
-    // Call renderPapers when the page loads
-    window.onload = function() {
-      renderPapers(paperList);
-    };
+    function handleTextSelection(event) {
+      const selection = window.getSelection();
+      if (selection.toString().length > 0) {
+        // Remove previous highlight if exists
+        if (currentHighlightedSpan) {
+          const parent = currentHighlightedSpan.parentNode;
+          parent.replaceChild(document.createTextNode(currentHighlightedSpan.textContent), currentHighlightedSpan);
+        }
+
+        const range = selection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.className = 'highlighted-text';
+        
+        // Add highlight actions
+        const actions = document.createElement('div');
+        actions.className = 'highlight-actions';
+        actions.innerHTML = `
+          <button class="highlight-button" onclick="analyzeHighlightedText()">Analyze</button>
+          <button class="highlight-button" onclick="clearHighlight()">Clear</button>
+        `;
+        span.appendChild(actions);
+        
+        range.surroundContents(span);
+        currentHighlightedSpan = span;
+        currentHighlightedText = selection.toString();
+      }
+    }
+
+    function clearHighlight() {
+      if (currentHighlightedSpan) {
+        const parent = currentHighlightedSpan.parentNode;
+        parent.replaceChild(document.createTextNode(currentHighlightedSpan.textContent), currentHighlightedSpan);
+        currentHighlightedSpan = null;
+        currentHighlightedText = null;
+      }
+    }
+
+    async function analyzeHighlightedText() {
+      if (!currentHighlightedText) return;
+
+      try {
+        const currentPaper = currentPapers[currentPaperIndex];
+        if (!currentPaper || !currentPaper.entry_id) {
+          throw new Error('Invalid paper data');
+        }
+
+        // Extract the arXiv ID from the full URL if present
+        let paperId = currentPaper.entry_id;
+        if (paperId.includes('arxiv.org')) {
+          paperId = paperId.split('/').pop();
+        }
+        // Remove version suffix if present
+        if (paperId.includes('v')) {
+          paperId = paperId.split('v')[0];
+        }
+
+        const response = await fetch('http://localhost:8000/highlight/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: currentHighlightedText,
+            paper_id: paperId
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const responseBox = document.getElementById('responseBox');
+          responseBox.innerHTML = `<div>Analysis of highlighted text: ${data.response}</div>`;
+          
+          // Update knowledge graph
+          if (data.knowledge_graph) {
+            updateKnowledgeGraph(data.knowledge_graph);
+          }
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to analyze text');
+        }
+      } catch (error) {
+        console.error('Error analyzing text:', error);
+        showError(error.message || 'Failed to analyze text');
+      }
+    }
+
+    async function loadFullText(paperId) {
+      try {
+        // Extract the arXiv ID from the full URL if present
+        if (paperId.includes('arxiv.org')) {
+          paperId = paperId.split('/').pop();
+        }
+        // Remove version suffix if present
+        if (paperId.includes('v')) {
+          paperId = paperId.split('v')[0];
+        }
+
+        // First try to get the paper details
+        const paperDetails = await fetch(`http://localhost:8000/paper/${paperId}`);
+        if (!paperDetails.ok) {
+          throw new Error('Failed to get paper details');
+        }
+        const paper = await paperDetails.json();
+
+        // Then try to get the full text
+        const response = await fetch(`http://localhost:8000/paper/${paperId}/full-text`);
+        if (response.ok) {
+          const data = await response.json();
+          const paperContent = document.querySelector('.paper-content');
+          
+          // Remove existing full text if any
+          const existingFullText = paperContent.querySelector('.full-text');
+          if (existingFullText) {
+            existingFullText.remove();
+          }
+
+          const fullTextDiv = document.createElement('div');
+          fullTextDiv.className = 'full-text';
+          fullTextDiv.innerHTML = `
+            <h3>Full Text</h3>
+            <div class="highlightable">${data.text || paper.abstract}</div>
+          `;
+          paperContent.appendChild(fullTextDiv);
+
+          // Add text selection event listeners to the new content
+          const highlightableElements = fullTextDiv.querySelectorAll('.highlightable');
+          highlightableElements.forEach(element => {
+            element.addEventListener('mouseup', handleTextSelection);
+          });
+        } else {
+          throw new Error('Failed to load full text');
+        }
+      } catch (error) {
+        console.error('Error loading full text:', error);
+        showError(error.message || 'Failed to load full text');
+      }
+    }
 
     function simulateModelTyping(responseText) {
       const box = document.getElementById('responseBox');
@@ -248,11 +542,168 @@ color: var(--theme-color);
       type();
     }
 
-    const sampleResponse = `Analyzing your prompt...\n\nRelevant topics found:\n- Deep Learning\n- Reinforcement Learning\n\nSearching papers...\n\nTop result: 'Policy Gradients in Reinforcement Learning' by Schulman et al.`;
+    const sampleResponse = `Analyzing your prompt...`;
 
     document.querySelector("button").addEventListener("click", () => {
       simulateModelTyping(sampleResponse);
     });
+
+    function updateKnowledgeGraph(graphData) {
+        const width = document.getElementById('visualization').clientWidth;
+        const height = document.getElementById('visualization').clientHeight;
+
+        // Clear previous visualization
+        d3.select('#visualization').selectAll('*').remove();
+
+        // Create SVG
+        const svg = d3.select('#visualization')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('viewBox', [-width / 2, -height / 2, width, height])
+            .style('font', '10px sans-serif')
+            .style('user-select', 'none');
+
+        // Create a force simulation
+        const simulation = d3.forceSimulation()
+            .force('link', d3.forceLink().id(d => d.id).distance(100))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2));
+
+        // Create links
+        const link = svg.append('g')
+            .selectAll('line')
+            .data(graphData.edges)
+            .enter()
+            .append('line')
+            .attr('stroke', '#40ff40')
+            .attr('stroke-opacity', 0.6)
+            .attr('stroke-width', 1);
+
+        // Create nodes
+        const node = svg.append('g')
+            .selectAll('circle')
+            .data(graphData.nodes)
+            .enter()
+            .append('circle')
+            .attr('r', 5)
+            .attr('fill', '#40ff40')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        // Add labels
+        const label = svg.append('g')
+            .selectAll('text')
+            .data(graphData.nodes)
+            .enter()
+            .append('text')
+            .text(d => d)
+            .attr('font-size', 12)
+            .attr('fill', '#40ff40')
+            .attr('dx', 12)
+            .attr('dy', 4);
+
+        // Update positions on each tick
+        simulation.nodes(graphData.nodes).on('tick', () => {
+            link
+                .attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node
+                .attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            label
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
+        });
+
+        // Add links to the simulation
+        simulation.force('link').links(graphData.edges);
+
+        // Drag functions
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        // Add zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on('zoom', (event) => {
+                svg.selectAll('g').attr('transform', event.transform);
+            });
+
+        svg.call(zoom);
+    }
+
+    async function sendChatMessage() {
+      const chatInput = document.getElementById('chatInput');
+      const message = chatInput.value.trim();
+      if (!message) return;
+
+      try {
+        const currentPaper = currentPapers[currentPaperIndex];
+        if (!currentPaper || !currentPaper.entry_id) {
+          throw new Error('Invalid paper data');
+        }
+
+        // Extract the arXiv ID from the full URL if present
+        let paperId = currentPaper.entry_id;
+        if (paperId.includes('arxiv.org')) {
+          paperId = paperId.split('/').pop();
+        }
+        // Remove version suffix if present
+        if (paperId.includes('v')) {
+          paperId = paperId.split('v')[0];
+        }
+
+        const response = await fetch('http://localhost:8000/chat/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message,
+            paper_id: paperId,
+            context: currentPaper.abstract
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const responseBox = document.getElementById('responseBox');
+          responseBox.innerHTML = `<div>${data.response}</div>`;
+          
+          // Update knowledge graph
+          if (data.knowledge_graph) {
+            updateKnowledgeGraph(data.knowledge_graph);
+          }
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to send message');
+        }
+      } catch (error) {
+        console.error('Error sending chat message:', error);
+        showError(error.message || 'Failed to send message');
+      }
+
+      chatInput.value = '';
+    }
   </script>
 </body>
 </html>
