@@ -1,12 +1,18 @@
-# core_agent/utils/arxiv_api.py
-
 import requests
 import xml.etree.ElementTree as ET
+from urllib.parse import quote_plus
 
 ARXIV_API = "https://export.arxiv.org/api/query"
 
 def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
-    query = '+OR+'.join(f'all:"{kw.replace("_", " ")}"' for kw in keywords[:3])
+
+    keywords = [
+        "graph theory",
+        "network science",
+        "combinatorics"
+    ]
+
+    query = '+OR+'.join(f'all:{quote_plus(kw)}' for kw in keywords[:3])
     params = {
         'search_query': query,
         'start': 0,
@@ -25,6 +31,7 @@ def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
     ns = {'atom': 'http://www.w3.org/2005/Atom'}
 
     results = []
+    print(f'results: {results}')
     for entry in root.findall('atom:entry', ns):
         result = {
             'title': entry.find('atom:title', ns).text.strip(),
@@ -34,5 +41,9 @@ def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
             'link': entry.find('atom:id', ns).text.strip(),
         }
         results.append(result)
+
+    import json
+    with open("links.json", "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
 
     return results

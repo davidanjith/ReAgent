@@ -1,10 +1,8 @@
-# Handles interaction with Ollama (LLM backend)
-
 import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
+load_dotenv()
 
 OLLAMA_API = os.getenv("OLLAMA_URL")
 MODEL = os.getenv("OLLAMA_MODEL")

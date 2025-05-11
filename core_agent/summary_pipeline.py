@@ -10,13 +10,10 @@ def summarize_topic(user_input: str) -> dict:
     3. Summarize top papers via LLM.
     4. Return the keywords, original papers, and their summaries.
     """
-    # Step 1: Extract keywords
     keywords = extract_keywords(user_input)
 
-    # Step 2: Fetch papers from ArXiv using extracted keywords
     papers = search_arxiv(keywords)
 
-    # Step 3: Generate a single summary across all papers
     summary = summarize_papers(papers)
 
     # Step 4: Return combined result
