@@ -9,7 +9,7 @@ class ChatEngine:
     def __init__(self):
         # Initialize Ollama with secure settings
         self.llm = Ollama(
-            model="llama2:latest",
+            model="llama3.2:latest",
             temperature=0.7,
             stop=["Human:", "Assistant:"],  # Prevent prompt injection
             timeout=30  # Add timeout to prevent hanging

@@ -8,12 +8,12 @@ def check_ollama():
         response = requests.get('http://localhost:11434/api/tags')
         if response.status_code == 200:
             models = response.json()
-            if any(model['name'] == 'llama2:latest' for model in models.get('models', [])):
+            if any(model['name'] == 'llama3.2:latest' for model in models.get('models', [])):
                 print("✅ Ollama is running and llama2 model is available")
                 return True
             else:
-                print("❌ Ollama is running but llama2 model is not found")
-                print("Please run: ollama pull llama2")
+                print("❌ Ollama is running but llama3.2 model is not found")
+                print("Please run: ollama pull llama3.2")
                 return False
         else:
             print("❌ Ollama is not running")

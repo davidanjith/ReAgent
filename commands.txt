@@ -1,0 +1,2 @@
+bypass the global python, run from the venv in linux
+python -m uvicorn main:app --reload

@@ -22,23 +22,21 @@ def query_ollama(prompt: str) -> str:
 
 def extract_keywords(text: str) -> list[str]:
     prompt = (
-        f"EXTRACT 5 to 7 Keywords(field of study) from input in the brackets "
-        f"that can be used to search for research papers:<\n\n\"{text}\"\n\n>"
-        "Return only a comma-separated list of keywords. "
-        "no need state that these are keywords."
-        "Do not include any explanations, numbers, or extra text. "
-        "fill in the spaces between individual keywords with an underscore."
-        "Only output the keywords, separated by commas."
-
+        f"Extract 5 to 7 concise academic research keywords (fields of study) "
+        f"from the following input:\n\n\"{text}\"\n\n"
+        "Output a single comma-separated list of keywords.\n"
+        "Use underscores **within** multi-word keywords only (e.g., 'computer_science').\n"
+        "Do not include explanations, numbers, or extra text.\n"
+        "Just output the keywords, separated by commas."
     )
+
     response = query_ollama(prompt)
-    # Post-process: Remove any lines that are not comma-separated keywords
-    # (in case the model still adds extra text)
-    # Only keep the first line with commas
+
+    # Post-process to extract the first valid line with comma-separated values
     for line in response.splitlines():
         if ',' in line:
             return [kw.strip() for kw in line.split(',')]
-    # Fallback: split the whole response
+
     return [kw.strip() for kw in response.split(',')]
 
 

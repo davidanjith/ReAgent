@@ -17,6 +17,11 @@ class PaperSearch:
         """
         Search for papers on arXiv based on the query
         """
+        query_keywords = query.split()
+        formatted_keywords = [f'all:"{kw.replace("_", " ")}"' for kw in query_keywords[:5]]
+        query = " OR ".join(formatted_keywords)
+        query = 'OR'.join(kw.replace('_', ' ') for kw in list(query.split())[:4])
+
         try:
             logger.info(f"Searching arXiv for: {query}")
             search = arxiv.Search(
