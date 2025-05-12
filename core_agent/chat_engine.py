@@ -4,6 +4,10 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from typing import Dict, List
 import json
+import logging
+import asyncio
+
+logger = logging.getLogger(__name__)
 
 class ChatEngine:
     def __init__(self):
@@ -15,29 +19,37 @@ class ChatEngine:
             timeout=30  # Add timeout to prevent hanging
         )
         
-        # Create a secure prompt template
-        template = """The following is a friendly conversation between a human and an AI. 
-        The AI is helpful, creative, clever, and very friendly.
+        # Create a secure prompt template for paper-specific chat
+        self.paper_chat_template = """You are an AI research assistant helping to analyze and discuss academic papers.
+        You have access to the following paper information:
+        
+        Title: {title}
+        Authors: {authors}
+        Abstract: {abstract}
         
         Current conversation:
         {history}
+        
         Human: {input}
         Assistant:"""
         
-        prompt = PromptTemplate(
-            input_variables=["history", "input"],
-            template=template
+        self.paper_chat_prompt = PromptTemplate(
+            input_variables=["title", "authors", "abstract", "history", "input"],
+            template=self.paper_chat_template
         )
         
+        # Initialize memory with default values for paper details
         self.memory = ConversationBufferMemory(
             return_messages=True,
-            memory_key="history"
+            memory_key="history",
+            input_key="input",
+            output_key="output"
         )
         
+        # Initialize conversation chain with default values
         self.conversation = ConversationChain(
             llm=self.llm,
             memory=self.memory,
-            prompt=prompt,
             verbose=True
         )
         
@@ -47,24 +59,56 @@ class ChatEngine:
             "edges": []
         }
 
-    async def chat(self, message: str, context: str = "") -> Dict:
+    async def chat(self, message: str, context: str = "", paper_id: str = None) -> Dict:
         """
         Process a chat message and return a response
         """
-        # Sanitize input
-        message = self._sanitize_input(message)
-        context = self._sanitize_input(context)
-        
-        prompt = f"Context: {context}\n\nUser: {message}"
-        response = self.conversation.predict(input=prompt)
-        
-        # Extract key concepts and relationships
-        self._update_knowledge_graph(message, response)
-        
-        return {
-            "response": response,
-            "knowledge_graph": self.knowledge_graph
-        }
+        try:
+            # Sanitize input
+            message = self._sanitize_input(message)
+            context = self._sanitize_input(context)
+            
+            # Default paper details
+            paper_details = {
+                "title": "",
+                "authors": "",
+                "abstract": ""
+            }
+            
+            # If paper_id is provided, extract paper details from context
+            if paper_id:
+                for line in context.split('\n'):
+                    if line.startswith('Paper:'):
+                        paper_details['title'] = line.replace('Paper:', '').strip()
+                    elif line.startswith('Abstract:'):
+                        paper_details['abstract'] = line.replace('Abstract:', '').strip()
+            
+            # Format the prompt with paper details
+            prompt = self.paper_chat_prompt.format(
+                title=paper_details['title'],
+                authors=paper_details['authors'],
+                abstract=paper_details['abstract'],
+                history=self.memory.buffer,
+                input=message
+            )
+            
+            # Get response from LLM using asyncio
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, self.llm.predict, prompt)
+            
+            # Update memory
+            self.memory.save_context({"input": message}, {"output": response})
+            
+            # Extract key concepts and relationships
+            self._update_knowledge_graph(message, response)
+            
+            return {
+                "response": response,
+                "knowledge_graph": self.knowledge_graph
+            }
+        except Exception as e:
+            logger.error(f"Error in chat: {str(e)}")
+            raise
 
     def _sanitize_input(self, text: str) -> str:
         """
