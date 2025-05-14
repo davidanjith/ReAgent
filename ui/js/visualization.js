@@ -218,14 +218,66 @@ function updateConceptHierarchy(hierarchy) {
             }
         });
 
-    // Add labels: only show paper number in big circle, show title only when zoomed in
+    // Add labels with dynamic sizing and black color
     node.append('text')
         .attr('dy', '0.3em')
-        .text(d => d.depth === 0 ? 'Paper 1' : '')
-        .style('fill', '#222')
+        .text(d => {
+            if (d.depth === 0) return 'Paper 1';
+            if (d.r < 20) return ''; // Don't show text for very small circles
+            return d.data.name || '';
+        })
+        .style('fill', 'black') // Make text black
         .style('text-anchor', 'middle')
         .style('pointer-events', 'none')
-        .style('font-size', d => Math.max(18, d.r / 8) + 'px')
+        .style('font-weight', 'bold') // Make text bold for better visibility
+        .style('font-size', d => {
+            // Dynamically size text based on circle radius
+            const minSize = 8;
+            const maxSize = 18;
+            const textLength = (d.data.name || '').length;
+            const baseSize = Math.min(maxSize, Math.max(minSize, d.r / 3));
+            // Adjust for text length
+            const lengthAdjustment = Math.max(0.5, 1 - (textLength * 0.02));
+            return Math.floor(baseSize * lengthAdjustment) + 'px';
+        })
+        .each(function(d) {
+            // Wrap text if it's too long for the circle
+            const textElement = d3.select(this);
+            const text = textElement.text();
+            if (text && d.r > 20) {
+                const maxWidth = d.r * 1.8; // 90% of diameter
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = [];
+                
+                // Simple word wrapping
+                for (const word of words) {
+                    const testLine = [...currentLine, word].join(' ');
+                    textElement.text(testLine);
+                    if (textElement.node().getBBox().width > maxWidth && currentLine.length > 0) {
+                        lines.push(currentLine.join(' '));
+                        currentLine = [word];
+                    } else {
+                        currentLine.push(word);
+                    }
+                }
+                if (currentLine.length > 0) {
+                    lines.push(currentLine.join(' '));
+                }
+                
+                // Clear text and add lines
+                textElement.text('');
+                const lineHeight = 1.1;
+                const startY = -(lines.length - 1) * 0.5 * lineHeight;
+                
+                lines.forEach((line, i) => {
+                    textElement.append('tspan')
+                        .attr('x', 0)
+                        .attr('dy', i === 0 ? startY + 'em' : lineHeight + 'em')
+                        .text(line);
+                });
+            }
+        })
         .attr('class', 'mathjax-label');
 
     // Add tooltips with summaries

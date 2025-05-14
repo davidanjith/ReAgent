@@ -20,19 +20,17 @@ async function handleSearch() {
         renderPapers(data.papers);
         
         // Generate concept hierarchy for all papers
-        const paperTexts = data.papers.map(paper => ({
-            title: paper.title,
-            text: paper.abstract
-        }));
-        
         const hierarchy = {
             name: "Search Results",
-            children: paperTexts.map(paper => ({
+            children: data.papers.map(paper => ({
                 name: paper.title,
-                children: [{
-                    name: "Abstract",
-                    value: 1
-                }]
+                value: 5, // Make each paper a big circle
+                children: [
+                    {
+                        name: "Abstract",
+                        value: 1
+                    }
+                ]
             }))
         };
         

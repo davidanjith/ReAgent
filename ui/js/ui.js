@@ -3,6 +3,9 @@ let currentPapers = [];
 let currentPaperIndex = 0;
 let currentHighlightedText = '';
 
+// Global variable to store the current concept hierarchy
+let currentConceptHierarchy = null;
+
 // UI functions
 function showLoading(show) {
     const responseBox = document.getElementById('responseBox');
@@ -169,29 +172,75 @@ async function loadFullText(paperId) {
         const paperContent = document.querySelector('.paper-content');
         const fullTextSection = document.createElement('div');
         fullTextSection.className = 'full-text-section';
+        
+        // Display the summary instead of the full text
+        let summary = data.summary;
+        if (typeof summary !== 'string') {
+            summary = JSON.stringify(summary, null, 2);
+        }
+        let text = data.text;
+        if (typeof text !== 'string') {
+            text = JSON.stringify(text, null, 2);
+        }
         fullTextSection.innerHTML = `
-            <h3>Full Text</h3>
-            <div class="highlightable">${data.text || ''}</div>
+            <h3>Paper Summary</h3>
+            <div class="summary-content">${summary || text || 'No summary available'}</div>
+            <div class="paper-actions">
+                <button onclick="toggleFullText('${paperId}')" class="toggle-text-button">Show Full Text</button>
+            </div>
         `;
         
-        // Add text selection event listener
-        const highlightableElement = fullTextSection.querySelector('.highlightable');
-        highlightableElement.addEventListener('mouseup', handleTextSelection);
+        // Store the full text data for later use
+        fullTextSection._fullData = data;
         
         paperContent.appendChild(fullTextSection);
 
         // Store full text in currentPaper for chat context
         if (currentPapers && currentPapers[currentPaperIndex]) {
             currentPapers[currentPaperIndex].full_text = data.text || '';
+            currentPapers[currentPaperIndex].summary = data.summary || '';
         }
 
-        // Update the concept hierarchy visualization
+        // Update the concept hierarchy visualization for this paper only
         if (data.hierarchy) {
-            updateConceptHierarchy(data.hierarchy);
+            // Find the paper node in the current concept hierarchy and update its children
+            if (currentConceptHierarchy) {
+                const paperTitle = currentPapers[currentPaperIndex].title;
+                const paperNode = currentConceptHierarchy.children.find(child => child.name === paperTitle);
+                if (paperNode) {
+                    // Replace children with the new hierarchy's children
+                    paperNode.children = data.hierarchy.children;
+                }
+                updateConceptHierarchy(currentConceptHierarchy);
+            } else {
+                // If not set, just show this hierarchy
+                updateConceptHierarchy(data.hierarchy);
+            }
         }
     } catch (error) {
         showError(error.message);
     } finally {
         showLoading(false);
+    }
+}
+
+// Add function to toggle between summary and full text
+function toggleFullText(paperId) {
+    const fullTextSection = document.querySelector('.full-text-section');
+    const summaryContent = fullTextSection.querySelector('.summary-content');
+    const toggleButton = fullTextSection.querySelector('.toggle-text-button');
+    const fullData = fullTextSection._fullData;
+    
+    if (toggleButton.textContent === 'Show Full Text') {
+        summaryContent.innerHTML = fullData.text || 'No full text available';
+        summaryContent.className = 'full-text-content highlightable';
+        toggleButton.textContent = 'Show Summary';
+        
+        // Add text selection event listener for full text
+        summaryContent.addEventListener('mouseup', handleTextSelection);
+    } else {
+        summaryContent.innerHTML = fullData.summary || 'No summary available';
+        summaryContent.className = 'summary-content';
+        toggleButton.textContent = 'Show Full Text';
     }
 } 

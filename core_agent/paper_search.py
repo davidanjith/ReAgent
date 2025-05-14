@@ -16,6 +16,17 @@ import re
 
 logger = logging.getLogger(__name__)
 
+def clean_extracted_text(text):
+    # Remove arXiv headers/footers
+    text = re.sub(r'arXiv:\S+|v\d+ \[.*?\] \d+ \w+ \d+', '', text)
+    # Remove excessive newlines
+    text = re.sub(r'\n{2,}', '\n', text)
+    # Remove multiple spaces
+    text = re.sub(r' +', ' ', text)
+    # Optionally, join lines that are broken in the middle of sentences
+    text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
+    return text.strip()
+
 class PaperSearch:
     def __init__(self):
         self.client = arxiv.Client()
@@ -137,6 +148,8 @@ class PaperSearch:
                     logger.warning("No text could be extracted from PDF")
                     return None
 
+                # Clean the extracted text
+                text = clean_extracted_text(text)
                 return text.strip()
                 
             finally:
@@ -152,7 +165,7 @@ class PaperSearch:
 
     async def get_full_text(self, paper_id: str) -> Optional[Dict]:
         """
-        Get the full text of a paper and create a concept hierarchy
+        Get the full text of a paper and create a concept hierarchy with summary
         """
         try:
             paper = await self.get_paper_details(paper_id)
@@ -169,25 +182,59 @@ class PaperSearch:
                 full_text = self._extract_text_from_pdf(response.content)
                 
                 if full_text:
+                    # Create summary from full text
+                    summary_prompt = f"""
+                    Summarize the following research paper in 3-5 clear sentences covering:
+                    1. The main problem/question addressed
+                    2. The key methodology or approach
+                    3. The main findings or contributions
+                    
+                    Paper: {full_text[:3000]}...
+                    
+                    Provide a concise summary:
+                    """
+                    summary = self.llm(summary_prompt).strip()
+                    
                     # Create concept hierarchy
                     hierarchy = await self._create_concept_hierarchy(full_text, paper['title'], paper['abstract'])
                     return {
                         "text": full_text,
+                        "summary": summary,
                         "hierarchy": hierarchy
                     }
                 else:
                     logger.warning("Could not extract text from PDF, falling back to abstract")
+                    # Create summary from abstract
+                    summary_prompt = f"""
+                    Based on this research paper abstract, provide a brief summary in 2-3 sentences:
+                    
+                    Abstract: {paper['abstract']}
+                    
+                    Summary:
+                    """
+                    summary = self.llm(summary_prompt).strip()
                     hierarchy = await self._create_concept_hierarchy(paper['abstract'], paper['title'], paper['abstract'])
                     return {
                         "text": paper['abstract'],
+                        "summary": summary,
                         "hierarchy": hierarchy
                     }
                     
             except Exception as e:
                 logger.warning(f"Could not fetch full text: {str(e)}")
+                # Create summary from abstract as fallback
+                summary_prompt = f"""
+                Based on this research paper abstract, provide a brief summary in 2-3 sentences:
+                
+                Abstract: {paper['abstract']}
+                
+                Summary:
+                """
+                summary = self.llm(summary_prompt).strip()
                 hierarchy = await self._create_concept_hierarchy(paper['abstract'], paper['title'], paper['abstract'])
                 return {
                     "text": paper['abstract'],
+                    "summary": summary,
                     "hierarchy": hierarchy
                 }
             
@@ -236,9 +283,16 @@ class PaperSearch:
             for c in main_concepts:
                 children.append({"name": c.get("name", "Concept"), "summary": c.get("summary", ""), "value": 1})
 
+            # After building children in _create_concept_hierarchy
+            seen = set()
+            unique_children = []
+            for child in children:
+                if child['name'] not in seen:
+                    unique_children.append(child)
+                    seen.add(child['name'])
             return {
                 "name": title,
-                "children": children
+                "children": unique_children
             }
         except Exception as e:
             logger.error(f"Error creating concept hierarchy: {str(e)}")
