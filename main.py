@@ -1,11 +1,19 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from core_agent.paper_search import PaperSearch
 from core_agent.chat_engine import ChatEngine
+from core_agent.pdf_parser import PDFParser
 import traceback
 import logging
+import asyncio
+import json
+from datetime import datetime
+import time
+from PyPDF2 import PdfReader
+import io
+from core_agent.summary_pipeline import summarize_topic
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -25,6 +33,7 @@ app.add_middleware(
 # Initialize our services
 paper_search = PaperSearch()
 chat_engine = ChatEngine()
+pdf_parser = PDFParser()
 
 class SearchRequest(BaseModel):
     query: str
@@ -35,17 +44,49 @@ class ChatRequest(BaseModel):
     context: Optional[str] = ""
     paper_id: Optional[str] = None
 
+class SummarizeRequest(BaseModel):
+    query: str
+    max_results: Optional[int] = 5
+
 class HighlightRequest(BaseModel):
     text: str
     paper_id: str
 
 @app.post("/search/")
 async def search_papers(request: SearchRequest):
+    start_time = time.time()
     try:
-        logger.info(f"Received search request for query: {request.query}")
-        papers = await paper_search.search_papers(request.query, request.max_results)
-        logger.info(f"Found {len(papers)} papers")
-        return {"papers": papers}
+        logger.info(f"Starting search pipeline for query: {request.query}")
+        
+        # Use summarize_topic to handle the entire pipeline
+        result = summarize_topic(request.query, max_papers=request.max_results)
+        
+        if "error" in result:
+            return {
+                "metadata": {
+                    "query": request.query,
+                    "total_papers": 0,
+                    "timestamp": datetime.now().isoformat(),
+                    "processing_time": time.time() - start_time
+                },
+                "papers": [],
+                "summary": result["error"],
+                "knowledge_graph": {"nodes": [], "edges": []}
+            }
+        
+        # Return the complete result
+        return {
+            "metadata": {
+                "query": request.query,
+                "total_papers": len(result["papers"]),
+                "timestamp": datetime.now().isoformat(),
+                "processing_time": time.time() - start_time
+            },
+            "papers": result["papers"],
+            "summary": result["summary"],
+            "knowledge_graph": {"nodes": result["keywords"], "edges": []}
+        }
+            
     except Exception as e:
         logger.error(f"Error in search_papers: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
@@ -68,28 +109,25 @@ async def chat(request: ChatRequest):
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/highlight/")
-async def process_highlight(request: HighlightRequest):
+@app.post("/summarize/")
+async def summarize_papers(request: SummarizeRequest):
     try:
-        logger.info(f"Received highlight request for paper: {request.paper_id}")
-        # Get paper details for context
-        paper_details = await paper_search.get_paper_details(request.paper_id)
-        context = f"Paper: {paper_details['title']}\nHighlighted text: {request.text}"
+        logger.info(f"Received summarize request for query: {request.query}")
         
-        # Process the highlight through the chat engine
-        response = await chat_engine.chat("Please analyze this highlighted text and extract key concepts.", context)
-        return response
+        # Use the summarize_topic function from summary_pipeline
+        result = summarize_topic(request.query, max_papers=request.max_results)
+        
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+            
+        return {
+            "papers": result["papers"],
+            "summary": result["summary"],
+            "keywords": result["keywords"]
+        }
+            
     except Exception as e:
-        logger.error(f"Error in process_highlight: {str(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/knowledge-graph/")
-async def get_knowledge_graph():
-    try:
-        return chat_engine.get_knowledge_graph()
-    except Exception as e:
-        logger.error(f"Error in get_knowledge_graph: {str(e)}")
+        logger.error(f"Error in summarize_papers: {str(e)}")
         logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 

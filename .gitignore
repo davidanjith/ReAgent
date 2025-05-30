@@ -17,3 +17,6 @@ build/
 
 # Environment variables
 .env
+paper_cache/
+parsed_papers/
+/core_agent.egg-info/

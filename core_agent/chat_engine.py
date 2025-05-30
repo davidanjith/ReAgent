@@ -7,12 +7,14 @@ import json
 
 class ChatEngine:
     def __init__(self):
-        # Initialize Ollama with secure settings
+        # Initialize Ollama with GPU acceleration
         self.llm = Ollama(
-            model="llama2:latest",
+            model="llama3:latest",
             temperature=0.7,
             stop=["Human:", "Assistant:"],  # Prevent prompt injection
-            timeout=30  # Add timeout to prevent hanging
+            timeout=30,  # Add timeout to prevent hanging
+            num_gpu=1,  # Enable GPU acceleration
+            num_thread=4  # Adjust based on your CPU cores
         )
         
         # Create a secure prompt template
@@ -113,7 +115,7 @@ class ChatEngine:
         """
         
         try:
-            result = self.llm(prompt)
+            result = self.llm.invoke(prompt)
             concepts = json.loads(result)
             # Validate that concepts is a list of strings
             if isinstance(concepts, list) and all(isinstance(c, str) for c in concepts):
