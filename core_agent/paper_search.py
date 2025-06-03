@@ -1,9 +1,7 @@
 import arxiv
 from typing import List, Dict
-from datetime import datetime
+
 import logging
-import asyncio
-from typing import AsyncGenerator
 
 logger = logging.getLogger(__name__)
 

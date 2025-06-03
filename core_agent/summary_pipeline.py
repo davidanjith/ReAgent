@@ -4,7 +4,6 @@ from core_agent.utils.arxiv_api import search_arxiv
 from core_agent.ollama_client import extract_keywords, summarize_papers
 from core_agent.pdf_parser import PDFParser
 import logging
-import json
 
 logger = logging.getLogger(__name__)
 

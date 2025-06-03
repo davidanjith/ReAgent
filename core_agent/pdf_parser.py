@@ -6,7 +6,9 @@ from typing import Dict, List, Optional
 from pathlib import Path
 import os
 
+# Get logger for this module
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class PDFParser:
     def __init__(self, cache_dir: str = "paper_cache", parsed_dir: str = "parsed_papers"):
@@ -14,6 +16,7 @@ class PDFParser:
         self.parsed_dir = Path(parsed_dir)
         self.cache_dir.mkdir(exist_ok=True)
         self.parsed_dir.mkdir(exist_ok=True)
+        logger.info(f"Initialized PDFParser with cache_dir={cache_dir} and parsed_dir={parsed_dir}")
 
     def download_pdf(self, url: str, paper_id: str) -> Optional[str]:
         """

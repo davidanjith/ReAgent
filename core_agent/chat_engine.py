@@ -4,9 +4,15 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from typing import Dict, List
 import json
+import logging
+
+# Get logger for this module
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 class ChatEngine:
     def __init__(self):
+        logger.info("Initializing ChatEngine...")
         # Initialize Ollama with GPU acceleration
         self.llm = Ollama(
             model="llama3:latest",
@@ -16,6 +22,7 @@ class ChatEngine:
             num_gpu=1,  # Enable GPU acceleration
             num_thread=4  # Adjust based on your CPU cores
         )
+        logger.info("Ollama LLM initialized successfully")
         
         # Create a secure prompt template
         template = """The following is a friendly conversation between a human and an AI. 
@@ -42,12 +49,14 @@ class ChatEngine:
             prompt=prompt,
             verbose=True
         )
+        logger.info("Conversation chain initialized successfully")
         
         # Initialize knowledge graph
         self.knowledge_graph = {
             "nodes": [],
             "edges": []
         }
+        logger.info("ChatEngine initialization completed")
 
     async def chat(self, message: str, context: str = "") -> Dict:
         """
