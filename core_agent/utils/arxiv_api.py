@@ -47,8 +47,13 @@ def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
         logger.warning("No valid keywords after cleaning")
         return []
         
-    # Construct query - removed quotes around keywords
-    query = '+OR+'.join(f'all:{kw}' for kw in cleaned_keywords[:3])
+    # Construct query - use more specific search fields
+    query_parts = []
+    for kw in cleaned_keywords[:3]:  # Use top 3 keywords
+        # Search in title, abstract, and comment fields
+        query_parts.append(f'(ti:"{kw}" OR abs:"{kw}" OR co:"{kw}")')
+    
+    query = ' AND '.join(query_parts)
     params = {
         'search_query': query,
         'start': 0,
@@ -62,11 +67,24 @@ def search_arxiv(keywords: list[str], max_results=5) -> list[dict]:
         full_url = f"{ARXIV_API}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
         logger.info(f"Searching arXiv with URL: {full_url}")
         
-        # Add delay to respect API rate limits
-        time.sleep(3)
+        # Add delay to respect API rate limits (reduced from 3s to 1s)
+        time.sleep(1)
         
-        response = requests.get(ARXIV_API, params=params)
-        response.raise_for_status()
+        # Add retry logic for failed requests
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(ARXIV_API, params=params, timeout=10)
+                response.raise_for_status()
+                break
+            except requests.RequestException as e:
+                if attempt == max_retries - 1:
+                    raise
+                logger.warning(f"Attempt {attempt + 1} failed, retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
 
         # Parse XML response
         root = ET.fromstring(response.content)

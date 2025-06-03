@@ -26,13 +26,14 @@ def query_ollama(prompt: str) -> str:
 
 def extract_keywords(text: str) -> list[str]:
     prompt = (
-        f"EXTRACT 5 to 7 Keywords(field of study) from input in the brackets "
-        f"that can be used to search for research papers:<\n\n\"{text}\"\n\n>"
+        "Extract 3-5 most relevant academic keywords from the following query that would be useful for searching research papers. "
+        "Focus on technical terms, scientific concepts, and research areas. "
+        "Ignore common words, verbs, and non-technical terms.\n\n"
+        f"Query: \"{text}\"\n\n"
         "Return only a comma-separated list of keywords. "
-        "no need state that these are keywords."
-        "Do not include any explanations, numbers, or extra text. "
-        "fill in the spaces between individual keywords with an underscore."
-        "Only output the keywords, separated by commas."
+        "Each keyword should be a single technical term or concept. "
+        "Use underscores for multi-word terms. "
+        "Do not include any explanations or extra text."
     )
     
     try:
@@ -42,30 +43,39 @@ def extract_keywords(text: str) -> list[str]:
         for line in response.splitlines():
             if ',' in line:
                 # Split by comma and clean each keyword
-                raw_keywords = [kw.strip() for kw in line.split(',')]
-                # Filter out empty strings and very short keywords
-                keywords.extend([kw for kw in raw_keywords if len(kw) > 2])
+                raw_keywords = [kw.strip().lower() for kw in line.split(',')]
+                # Filter out common words and ensure minimum length
+                filtered_keywords = [
+                    kw for kw in raw_keywords 
+                    if len(kw) > 3 and not kw in ['the', 'and', 'for', 'with', 'from', 'this', 'that']
+                ]
+                keywords.extend(filtered_keywords)
                 break
         
         # If no valid keywords found in lines with commas, try splitting the whole response
         if not keywords:
-            keywords = [kw.strip() for kw in response.split(',') if len(kw.strip()) > 2]
+            keywords = [kw.strip().lower() for kw in response.split(',') 
+                       if len(kw.strip()) > 3 and not kw.strip() in ['the', 'and', 'for', 'with', 'from', 'this', 'that']]
         
-        # Ensure we have at least 3 keywords
-        if len(keywords) < 3:
-            # Fallback to basic keyword extraction
+        # Ensure we have at least 2 keywords
+        if len(keywords) < 2:
+            # Fallback to basic keyword extraction with better filtering
             words = text.lower().split()
-            keywords = [word for word in words if len(word) > 3][:5]
+            common_words = {'the', 'and', 'for', 'with', 'from', 'this', 'that', 'what', 'how', 'why', 'when', 'where', 'which', 'who'}
+            keywords = [word for word in words if len(word) > 3 and word not in common_words][:3]
         
-        print(f"Debug - Raw response: {response}")
-        print(f"Debug - Extracted keywords: {keywords}")
-        return keywords[:5]  # Limit to 5 keywords
+        # Remove duplicates while preserving order
+        seen = set()
+        keywords = [kw for kw in keywords if not (kw in seen or seen.add(kw))]
+        
+        return keywords[:3]  # Limit to 3 most relevant keywords
         
     except Exception as e:
         print(f"Error in keyword extraction: {str(e)}")
-        # Fallback to basic keyword extraction
+        # Fallback to basic keyword extraction with better filtering
         words = text.lower().split()
-        return [word for word in words if len(word) > 3][:5]
+        common_words = {'the', 'and', 'for', 'with', 'from', 'this', 'that', 'what', 'how', 'why', 'when', 'where', 'which', 'who'}
+        return [word for word in words if len(word) > 3 and word not in common_words][:3]
 
 
 def summarize_papers(papers: list[dict]) -> str:
