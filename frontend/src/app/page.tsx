@@ -5,12 +5,14 @@ import { MagnifyingGlassIcon, PaperAirplaneIcon } from '@heroicons/react/24/outl
 import Chat from '@/components/Chat'
 
 interface Paper {
-  id: string
+  paper_id: string
   title: string
   abstract: string
   authors: string[]
   year: number
   url: string
+  pdf_url?: string
+  summary?: string
 }
 
 export default function Home() {
@@ -18,9 +20,10 @@ export default function Home() {
   const [papers, setPapers] = useState<Paper[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null)
+  const [activeTabId, setActiveTabId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
   const chatRef = useRef<{ sendMessage: (message: string) => Promise<void> }>(null)
+  const [collectiveSummary, setCollectiveSummary] = useState<string>('')
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,9 +31,9 @@ export default function Home() {
 
     setLoading(true)
     setError('')
-    setSelectedPaper(null)
 
     try {
+      console.log('Making search request with query:', query)
       const response = await fetch('http://localhost:8000/search/', {
         method: 'POST',
         headers: {
@@ -42,15 +45,37 @@ export default function Home() {
         }),
       })
 
+      console.log('Search response status:', response.status)
       if (!response.ok) {
-        throw new Error('Search failed')
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
+        throw new Error(`Search failed: ${errorText}`)
       }
 
+      console.log('Waiting for response data...')
       const data = await response.json()
-      setPapers(data.papers)
+      console.log('Search response data:', data)
+      
+      if (!data.papers || !Array.isArray(data.papers)) {
+        console.error('Invalid response format:', data)
+        throw new Error('Invalid response format from server')
+      }
+
+      console.log(`Received ${data.papers.length} papers`)
+      const papersWithSummaries = data.papers.map((paper: Paper) => ({ ...paper, summary: paper.summary || 'No summary available.' }))
+      console.log('Papers with summaries:', papersWithSummaries)
+      setPapers(papersWithSummaries)
+      setCollectiveSummary(data.summary || '')
+      if (papersWithSummaries.length > 0) {
+        setActiveTabId(papersWithSummaries[0].paper_id)
+      } else if (data.summary) {
+        setActiveTabId('collective-summary')
+      } else {
+        setActiveTabId(null)
+      }
     } catch (err) {
-      setError('Failed to fetch papers. Please try again.')
       console.error('Search error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to fetch papers. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -67,7 +92,8 @@ export default function Home() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="space-y-6">
-        <div className="bg-white shadow sm:rounded-lg">
+        {/* Research Paper Search Card */}
+        <div className="bg-white shadow-md border border-gray-200 sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-base font-semibold leading-6 text-gray-900">
               Research Paper Search
@@ -117,49 +143,126 @@ export default function Home() {
         )}
 
         <div className="space-y-4">
-          {papers.map((paper) => (
-            <div
-              key={paper.id}
-              className={`bg-white shadow sm:rounded-lg overflow-hidden cursor-pointer transition-colors ${
-                selectedPaper?.id === paper.id ? 'ring-2 ring-indigo-600' : 'hover:bg-gray-50'
-              }`}
-              onClick={() => setSelectedPaper(paper)}
-            >
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  {paper.title}
-                </h3>
-                <div className="mt-2 text-sm text-gray-500">
-                  <p className="font-medium">Authors: {paper.authors.join(', ')}</p>
-                  <p className="mt-1">{paper.abstract}</p>
-                </div>
-                <div className="mt-4">
-                  <a
-                    href={paper.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                    onClick={(e) => e.stopPropagation()}
+          {/* Papers Tab Bar */}
+          {papers.length > 0 && (
+            <div className="bg-white border-b border-gray-200 rounded-t-lg">
+              <nav className="-mb-px flex space-x-8 overflow-x-auto px-4" aria-label="Tabs">
+                {papers.map((paper, index) => (
+                  <button
+                    key={`${paper.paper_id}-${index}`}
+                    onClick={() => setActiveTabId(paper.paper_id)}
+                    className={`
+                      whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm bg-white
+                      ${activeTabId === paper.paper_id
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-600 hover:text-gray-800'
+                      }
+                    `}
                   >
-                    View Paper <span aria-hidden="true">&rarr;</span>
-                  </a>
-                </div>
+                    {paper.title.length > 30 ? paper.title.substring(0, 30) + '...' : paper.title}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          )}
+
+          {/* Papers Content */}
+          {papers.length > 0 ? (
+            activeTabId ? (
+              // Show selected paper
+              <div className="space-y-4">
+                {(() => {
+                  const paper = papers.find(p => p.paper_id === activeTabId);
+                  if (!paper) return null;
+                  
+                  return (
+                    <>
+                      {/* Paper Details Card */}
+                      <div className="bg-white shadow-md border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="p-6">
+                          <div className="mb-4">
+                            <span className="text-sm font-medium text-indigo-600">
+                              {paper.year}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {paper.title}
+                          </h3>
+                          <div className="space-y-3">
+                            <p className="text-sm text-gray-600">
+                              {paper.authors.map((author, i) => (
+                                <span key={`${paper.paper_id}-author-${i}`}>
+                                  {author}{i < paper.authors.length - 1 ? ', ' : ''}
+                                </span>
+                              ))}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {paper.abstract}
+                            </p>
+                          </div>
+                          <div className="mt-4 flex justify-end">
+                            <a
+                              href={paper.pdf_url || paper.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              View Paper <span aria-hidden="true" className="ml-1">&rarr;</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Individual Paper Summary Card */}
+                      {paper.summary && paper.summary !== 'No summary available.' && (
+                        <div className="bg-white shadow-md border border-gray-200 rounded-lg overflow-hidden mt-4">
+                          <div className="p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">Summary</h3>
+                            <p className="text-sm text-gray-700">{paper.summary}</p>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            ) : (
+              // Show message when no paper is selected
+              <div className="bg-white shadow-md border border-gray-200 rounded-lg p-6 text-center text-gray-500">
+                Select a paper from the tabs above to view details
+              </div>
+            )
+          ) : (
+            // Show message when no papers are found
+            <div className="bg-white shadow-md border border-gray-200 rounded-lg p-6 text-center text-gray-500">
+              No papers found. Try a different search query.
+            </div>
+          )}
+
+          {/* Collective Summary Card (if it exists) */}
+          {collectiveSummary && (
+            <div className="bg-white shadow-md border border-gray-200 rounded-lg overflow-hidden mt-4">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Summary of Search Results</h3>
+                <p className="text-sm text-gray-700">{collectiveSummary}</p>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white shadow sm:rounded-lg">
+        {/* Chat with AI Assistant Info Card */}
+        <div className="bg-white shadow-md border border-gray-200 sm:rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-base font-semibold leading-6 text-gray-900">
               Chat with AI Assistant
             </h3>
             <div className="mt-2 max-w-xl text-sm text-gray-500">
               <p>
-                {selectedPaper
-                  ? `Ask questions about "${selectedPaper.title}"`
+                {activeTabId
+                  ? `Ask questions about "${papers.find(p => p.paper_id === activeTabId)?.title}"`
                   : 'Select a paper to start chatting about it'}
               </p>
             </div>
@@ -168,15 +271,19 @@ export default function Home() {
 
         <Chat
           ref={chatRef}
-          paperId={selectedPaper?.id}
-          paperTitle={selectedPaper?.title}
+          paperId={activeTabId === 'collective-summary' ? undefined : activeTabId || undefined}
+          paperTitle={activeTabId === 'collective-summary' ? undefined : papers.find(p => p.paper_id === activeTabId)?.title}
+          paperAbstract={activeTabId === 'collective-summary' ? undefined : papers.find(p => p.paper_id === activeTabId)?.abstract}
         />
 
-        {selectedPaper && (
-          <form onSubmit={handleSendMessage} className="bg-white shadow sm:rounded-lg p-4">
+        {/* Chat Input Form */}
+        {activeTabId !== 'collective-summary' && activeTabId && (
+          <form onSubmit={handleSendMessage} className="bg-white shadow-md border border-gray-200 sm:rounded-lg p-4">
             <div className="flex space-x-3">
               <input
                 type="text"
+                id="chat-message-input"
+                name="message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your message..."

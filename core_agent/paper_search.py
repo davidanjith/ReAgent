@@ -28,6 +28,7 @@ class PaperSearch:
             for result in results:
                 try:
                     paper = {
+                        "id": result.entry_id,
                         "title": result.title,
                         "authors": [author.name for author in result.authors],
                         "abstract": result.summary,

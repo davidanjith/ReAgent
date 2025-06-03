@@ -3,10 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from core_agent.paper_search import PaperSearch
-from core_agent.chat_engine import ChatEngine
 from core_agent.pdf_parser import PDFParser
-from core_agent.api.embedding_routes import router as embedding_router
-from core_agent.api.chat_routes import router as chat_router
 import traceback
 import logging
 import sys
@@ -65,13 +62,6 @@ except Exception as e:
     raise
 
 try:
-    chat_engine = ChatEngine()
-    logger.info("ChatEngine service initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize ChatEngine: {str(e)}")
-    raise
-
-try:
     pdf_parser = PDFParser()
     logger.info("PDFParser service initialized successfully")
 except Exception as e:
@@ -80,18 +70,11 @@ except Exception as e:
 
 # Include the routers with logging
 logger.info("Including API routers...")
-app.include_router(embedding_router)
-app.include_router(chat_router)
 logger.info("API routers included successfully")
 
 class SearchRequest(BaseModel):
     query: str
     max_results: Optional[int] = 5
-
-class ChatRequest(BaseModel):
-    message: str
-    context: Optional[str] = ""
-    paper_id: Optional[str] = None
 
 class SummarizeRequest(BaseModel):
     query: str
@@ -106,10 +89,16 @@ async def search_papers(request: SearchRequest):
     start_time = time.time()
     request_id = f"search_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     logger.info(f"[{request_id}] Starting search pipeline for query: {request.query}")
+    logger.info(f"[{request_id}] Request body: {request.dict()}")
     
     try:
         # Use summarize_topic to handle the entire pipeline
+        logger.info(f"[{request_id}] Calling summarize_topic with query: {request.query}, max_papers: {request.max_results}")
+        
+        # Log each step of the pipeline
+        logger.info(f"[{request_id}] Step 1: Extracting keywords...")
         result = summarize_topic(request.query, max_papers=request.max_results)
+        logger.info(f"[{request_id}] Keywords extracted: {result.get('keywords', [])}")
         
         if "error" in result:
             logger.error(f"[{request_id}] Search pipeline failed: {result['error']}")
@@ -125,9 +114,29 @@ async def search_papers(request: SearchRequest):
                 "knowledge_graph": {"nodes": [], "edges": []}
             }
         
+        logger.info(f"[{request_id}] Step 2: Processing papers...")
+        logger.info(f"[{request_id}] Found {len(result['papers'])} papers")
+        
+        # Ensure each paper has the correct PDF URL
+        for paper in result['papers']:
+            if 'pdf_url' not in paper and 'url' in paper:
+                paper['pdf_url'] = paper['url']
+            elif 'pdf_url' not in paper and 'entry_id' in paper:
+                # Construct arXiv PDF URL from entry_id
+                paper_id = paper['entry_id'].split('/')[-1]
+                paper['pdf_url'] = f"https://arxiv.org/pdf/{paper_id}.pdf"
+        
+        logger.info(f"[{request_id}] Step 3: Generating summary...")
+        logger.info(f"[{request_id}] Summary generated successfully")
+        
         processing_time = time.time() - start_time
         logger.info(f"[{request_id}] Search completed successfully in {processing_time:.2f}s. Found {len(result['papers'])} papers.")
         
+        # Log papers data before returning to check structure and IDs
+        logger.info(f"[{request_id}] Returning papers data. Number of papers: {len(result['papers'])}")
+        for i, paper in enumerate(result['papers']):
+            logger.info(f"[{request_id}] Paper {i} data: {paper}")
+
         # Return the complete result
         return {
             "metadata": {
@@ -168,29 +177,6 @@ async def summarize_papers(request: SummarizeRequest):
             
     except Exception as e:
         logger.error(f"[{request_id}] Error in summarize_papers: {str(e)}")
-        logger.error(f"[{request_id}] Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/chat/")
-async def chat(request: ChatRequest):
-    request_id = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    logger.info(f"[{request_id}] Received chat request: {request.message}")
-    
-    try:
-        # If paper_id is provided, get paper context
-        context = request.context
-        if request.paper_id:
-            logger.debug(f"[{request_id}] Fetching context for paper_id: {request.paper_id}")
-            paper_details = await paper_search.get_paper_details(request.paper_id)
-            context = f"Paper: {paper_details['title']}\nAbstract: {paper_details['abstract']}\n\n{context}"
-            logger.debug(f"[{request_id}] Context prepared with paper details")
-        
-        logger.debug(f"[{request_id}] Sending request to chat engine")
-        response = await chat_engine.chat(request.message, context)
-        logger.info(f"[{request_id}] Chat response generated successfully")
-        return response
-    except Exception as e:
-        logger.error(f"[{request_id}] Error in chat: {str(e)}")
         logger.error(f"[{request_id}] Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 

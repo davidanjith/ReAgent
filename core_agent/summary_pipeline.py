@@ -68,6 +68,7 @@ def summarize_topic(user_input: str, max_papers: int = 5) -> Dict:
                 if paper_data:
                     # Combine metadata from search with parsed content
                     paper_data.update({
+                        'id': paper.get('entry_id', ''),
                         'title': paper.get('title', ''),
                         'authors': paper.get('authors', []),
                         'published': paper.get('published', ''),
@@ -81,6 +82,7 @@ def summarize_topic(user_input: str, max_papers: int = 5) -> Dict:
                 else:
                     # If PDF processing fails, include basic metadata
                     processed_papers.append({
+                        'id': paper.get('entry_id', ''),
                         'title': paper.get('title', ''),
                         'authors': paper.get('authors', []),
                         'published': paper.get('published', ''),
