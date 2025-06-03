@@ -1,0 +1,3 @@
+An approach to the foundations of quantum theory is advertised that proceeds
+by "reverse engineering" quantum field theory. As a concrete instance of this
+approach, the general boundary formulation of quantum theory is outlined.

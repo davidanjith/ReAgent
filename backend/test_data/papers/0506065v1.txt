@@ -1,0 +1,10 @@
+Ramp secret sharing (SS) schemes can be classified into strong ramp SS
+schemes and weak ramp SS schemes. The strong ramp SS schemes do not leak out
+any part of a secret explicitly even in the case where some information about
+the secret leaks from a non-qualified set of shares, and hence, they are more
+desirable than weak ramp SS schemes. However, it is not known how to construct
+the strong ramp SS schemes in the case of general access structures. In this
+paper, it is shown that a strong ramp SS scheme can always be constructed from
+a SS scheme with plural secrets for any feasible general access structure. As a
+byproduct, it is pointed out that threshold ramp SS schemes based on Shamir's
+polynomial interpolation method are {\em not} always strong.

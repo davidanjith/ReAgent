@@ -1,0 +1,26 @@
+Citrus diseases pose threats to citrus farming and result in economic losses
+worldwide. Nucleic acid and serology-based methods of detection and,
+immunochromatographic assays are commonly used but these laboratory tests are
+laborious, expensive and might be subjected to cross-reaction and
+contamination. Modern optical spectroscopic techniques offer a promising
+alternative as they are label-free, sensitive, rapid, non-destructive, and
+demonstrate the potential for incorporation into an autonomous system for
+disease detection in citrus orchards. Nevertheless, the majority of optical
+spectroscopic methods for citrus disease detection are still in the trial
+phases and, require additional efforts to be established as efficient and
+commercially viable methods. The review presents an overview of fundamental
+working principles, the state of the art, and explains the applications and
+limitations of the optical spectroscopy technique including the spectroscopic
+imaging approach (hyperspectral imaging) in the identification of diseases in
+citrus plants. The review highlights (1) the technical specifications of
+optical spectroscopic tools that can potentially be utilized in field
+measurements, (2) their applications in screening citrus diseases through leaf
+spectroscopy, and (3) discusses their benefits and limitations, including
+future insights into label-free identification of citrus diseases. Moreover,
+the role of artificial intelligence is reviewed as potential effective tools
+for spectral analysis, enabling more accurate detection of infected citrus
+leaves even before the appearance of visual symptoms by leveraging
+compositional, morphological, and chemometric characteristics of the plant
+leaves. The review aims to encourage stakeholders to enhance the development
+and commercialization of field-based, label-free optical tools for the rapid
+and early-stage screening of citrus diseases in plants.

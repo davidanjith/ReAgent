@@ -1,0 +1,17 @@
+Two kinds of control-oriented models used in MPC are the state-space (SS)
+model and the input-output model (such as the ARX model). The SS model has
+interpretability when obtained from the modeling paradigm, and the ARX model is
+black-box but adaptable. This paper aims to introduce interpretability into ARX
+models, thereby proposing a first-principle-based modeling paradigm for
+acquiring control-oriented ARX models, as an alternative to the existing
+data-driven ARX identification paradigm. That is, first to obtain
+interpretative SS models via linearizing the first-principle-based models at
+interesting points and then to transform interpretative SS models into their
+equivalent ARX models via the SS-to-ARX transformations. This paper presents
+the Cayley-Hamilton, Observer-Theory, and Kalman Filter based SS-to-ARX
+transformations, further showing that choosing the ARX model order should
+depend on the process noise to achieve a good closed-loop performance rather
+than the fitting criteria in data-driven ARX identification paradigm. An
+AFTI-16 MPC example is used to illustrate the equivalence of SS-based MPC and
+ARX-based MPC problems and to investigate the robustness of different SS-to-ARX
+transformations to noise.

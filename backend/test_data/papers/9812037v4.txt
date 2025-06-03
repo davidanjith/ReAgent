@@ -1,0 +1,15 @@
+"Quantum Topology" deals with the general quantum theory as the theory of the
+functional quantum space; space time and energy momentum forms form a connected
+manifold; a functional quantum space on the quantum level. The general quantum
+theory derives from the topology of the quantum space.
+  "Quantum Topodynamics" derives from quantum topology, it deals with the set
+that underlies the assumed one structure of the topology, group and logic
+structure of the quantum space. The underlying structure was founded on the
+Fourier representation of the functional space.
+  "Differential Topology in Quantum Space" deals with the method of analysis
+approperiate for the quantum space; based on the Fourier representation of the
+functional space.
+  "Gauge Theory of Gravitation" deals with gravitation as a quantum topological
+phenomenon; by introducing the effect of gravitation into the quantum space
+through a phase angle; this displays its unity with the rest of the gauge
+interactions and shows that the manifold is compact.

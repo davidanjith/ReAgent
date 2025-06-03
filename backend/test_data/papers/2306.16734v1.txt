@@ -1,0 +1,15 @@
+The detection of leaf diseases in plants generally involves visual
+observation of patterns appearing on the leaf surface. However, there are many
+diseases that are distinguished based on very subtle changes in these visually
+observable patterns. This paper attempts to identify plant leaf diseases using
+image processing techniques. The focus of this study is on the detection of
+citrus leaf canker disease. Canker is a bacterial infection of leaves. Symptoms
+of citrus cankers include brown spots on the leaves, often with a watery or
+oily appearance. The spots (called lesions in botany) are usually yellow. It is
+surrounded by a halo of the leaves and is found on both the top and bottom of
+the leaf. This paper describes various methods that have been used to detect
+citrus leaf canker disease. The methods used are histogram comparison and
+k-means clustering. Using these methods, citrus canker development was detected
+based on histograms generated based on leaf patterns. The results thus obtained
+can be used, after consultation with experts in the field of agriculture, to
+identify suitable treatments for the processes used.

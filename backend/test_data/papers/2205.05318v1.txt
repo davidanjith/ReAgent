@@ -1,0 +1,11 @@
+The Crump-Young model consists of two fully coupled stochastic processes
+modeling the substrate and microorganisms dynamics in a chemostat. Substrate
+evolves following an ordinary differential equation whose coefficients depend
+of microorganisms number. Microorganisms are modeled though a pure jump process
+whose the jump rates depend on the substrate concentration. It goes to
+extinction almost-surely in the sense that microorganism population vanishes.
+In this work, we show that, conditionally on the non-extinction, its
+distribution converges exponentially fast to a quasi-stationary distribution.
+Due to the deterministic part, the dynamics of the Crump-Young model is highly
+degenerated. The proof is then original and consists of technical sharp
+estimates and new approaches for the quasi-stationary convergence.

@@ -1,0 +1,599 @@
+[
+    {
+        "id": "quantum_basics_2023",
+        "title": "Quantum Mechanics: A Gentle Introduction",
+        "authors": [
+            "John Smith",
+            "Alice Johnson"
+        ],
+        "year": 2023,
+        "abstract": "This paper provides an accessible introduction to the fundamental principles of quantum mechanics, including wave-particle duality, superposition, and entanglement. It is designed for readers with minimal background in physics.",
+        "citations": 150,
+        "keywords": [
+            "quantum mechanics",
+            "wave-particle duality",
+            "superposition",
+            "entanglement"
+        ]
+    },
+    {
+        "id": "quantum_computing_2022",
+        "title": "Quantum Computing: From Theory to Practice",
+        "authors": [
+            "Robert Chen",
+            "Maria Garcia"
+        ],
+        "year": 2022,
+        "abstract": "A comprehensive overview of quantum computing, covering both theoretical foundations and practical implementations. The paper discusses quantum gates, algorithms, and current challenges in the field.",
+        "citations": 200,
+        "keywords": [
+            "quantum computing",
+            "quantum gates",
+            "quantum algorithms",
+            "quantum supremacy"
+        ]
+    },
+    {
+        "id": "quantum_entanglement_2021",
+        "title": "Understanding Quantum Entanglement",
+        "authors": [
+            "David Wilson",
+            "Sarah Brown"
+        ],
+        "year": 2021,
+        "abstract": "This paper explores the phenomenon of quantum entanglement, its implications for quantum mechanics, and its applications in quantum information science. It includes both theoretical analysis and experimental results.",
+        "citations": 180,
+        "keywords": [
+            "quantum entanglement",
+            "EPR paradox",
+            "Bell's inequality",
+            "quantum information"
+        ]
+    },
+    {
+        "id": "quantum_field_theory_2023",
+        "title": "Introduction to Quantum Field Theory",
+        "authors": [
+            "Michael Lee",
+            "Emily Davis"
+        ],
+        "year": 2023,
+        "abstract": "A pedagogical introduction to quantum field theory, focusing on key concepts and their applications in particle physics. The paper includes clear explanations of field quantization and Feynman diagrams.",
+        "citations": 120,
+        "keywords": [
+            "quantum field theory",
+            "field quantization",
+            "Feynman diagrams",
+            "particle physics"
+        ]
+    },
+    {
+        "id": "quantum_measurement_2022",
+        "title": "The Quantum Measurement Problem",
+        "authors": [
+            "James Anderson",
+            "Lisa Martinez"
+        ],
+        "year": 2022,
+        "abstract": "An in-depth analysis of the quantum measurement problem, including various interpretations of quantum mechanics and their implications for our understanding of reality.",
+        "citations": 160,
+        "keywords": [
+            "quantum measurement",
+            "wave function collapse",
+            "quantum interpretations",
+            "measurement problem"
+        ]
+    },
+    {
+        "id": "0908.3943v1",
+        "title": "Critique on Vindication of Panspermia",
+        "authors": [
+            "Pushkar Ganesh Vaidya"
+        ],
+        "year": 2009,
+        "abstract": "In January 2001, air samples were collected from Earth's stratosphere. From\nthese air samples, cultures of three microorganisms were obtained. It was\nreasoned that these microorganisms are of cometary origin and thereby cometary\npanspermia stood vindicated. The fact that these microorganisms had essentially\nthe same characteristics as terrestrial microorganisms was explained using\ncometary panspermia. Here, the findings are reinterpreted in the light of niche\necology and adaptations. It is asserted that the microorganisms captured from\nthe stratosphere cannot be of cometary origin as they are contrary to the kind\nof microorganisms one would expect to find in a cometary niche.",
+        "citations": 0,
+        "keywords": [
+            "physics.gen-ph"
+        ],
+        "url": "http://arxiv.org/abs/0908.3943v1",
+        "pdf_url": "http://arxiv.org/pdf/0908.3943v1"
+    },
+    {
+        "id": "2103.13625v4",
+        "title": "A Comprehensive Review of Image Analysis Methods for Microorganism Counting: From Classical Image Processing to Deep Learning Approaches",
+        "authors": [
+            "Jiawei Zhang",
+            "Chen Li",
+            "Md Mamunur Rahaman",
+            "Yudong Yao",
+            "Pingli Ma",
+            "Jinghua Zhang",
+            "Xin Zhao",
+            "Tao Jiang",
+            "Marcin Grzegorzek"
+        ],
+        "year": 2021,
+        "abstract": "Microorganisms such as bacteria and fungi play essential roles in many\napplication fields, like biotechnique, medical technique and industrial domain.\nMicroorganism counting techniques are crucial in microorganism analysis,\nhelping biologists and related researchers quantitatively analyze the\nmicroorganisms and calculate their characteristics, such as biomass\nconcentration and biological activity. However, traditional microorganism\nmanual counting methods, such as plate counting method, hemocytometry and\nturbidimetry, are time-consuming, subjective and need complex operations, which\nare difficult to be applied in large-scale applications. In order to improve\nthis situation, image analysis is applied for microorganism counting since the\n1980s, which consists of digital image processing, image segmentation, image\nclassification and suchlike. Image analysis-based microorganism counting\nmethods are efficient comparing with traditional plate counting methods. In\nthis article, we have studied the development of microorganism counting methods\nusing digital image analysis. Firstly, the microorganisms are grouped as\nbacteria and other microorganisms. Then, the related articles are summarized\nbased on image segmentation methods. Each part of the article is reviewed by\nmethodologies. Moreover, commonly used image processing methods for\nmicroorganism counting are summarized and analyzed to find common technological\npoints. More than 144 papers are outlined in this article. In conclusion, this\npaper provides new ideas for the future development trend of microorganism\ncounting, and provides systematic suggestions for implementing integrated\nmicroorganism counting systems in the future. Researchers in other fields can\nrefer to the techniques analyzed in this paper.",
+        "citations": 0,
+        "keywords": [
+            "eess.IV",
+            "q-bio.QM"
+        ],
+        "url": "http://arxiv.org/abs/2103.13625v4",
+        "pdf_url": "http://arxiv.org/pdf/2103.13625v4"
+    },
+    {
+        "id": "2105.03148v2",
+        "title": "A State-of-the-art Survey of Object Detection Techniques in Microorganism Image Analysis: From Classical Methods to Deep Learning Approaches",
+        "authors": [
+            "Pingli Ma",
+            "Chen Li",
+            "Md Mamunur Rahaman",
+            "Yudong Yao",
+            "Jiawei Zhang",
+            "Shuojia Zou",
+            "Xin Zhao",
+            "Marcin Grzegorzek"
+        ],
+        "year": 2021,
+        "abstract": "Microorganisms play a vital role in human life. Therefore, microorganism\ndetection is of great significance to human beings. However, the traditional\nmanual microscopic detection methods have the disadvantages of long detection\ncycle, low detection accuracy in large orders, and great difficulty in\ndetecting uncommon microorganisms. Therefore, it is meaningful to apply\ncomputer image analysis technology to the field of microorganism detection.\nComputer image analysis can realize high-precision and high-efficiency\ndetection of microorganisms. In this review, first,we analyse the existing\nmicroorganism detection methods in chronological order, from traditional image\nprocessing and traditional machine learning to deep learning methods. Then, we\nanalyze and summarize these existing methods and introduce some potential\nmethods, including visual transformers. In the end, the future development\ndirection and challenges of microorganism detection are discussed. In general,\nwe have summarized 142 related technical papers from 1985 to the present. This\nreview will help researchers have a more comprehensive understanding of the\ndevelopment process, research status, and future trends in the field of\nmicroorganism detection and provide a reference for researchers in other\nfields.",
+        "citations": 0,
+        "keywords": [
+            "cs.CV",
+            "cs.AI"
+        ],
+        "url": "http://arxiv.org/abs/2105.03148v2",
+        "pdf_url": "http://arxiv.org/pdf/2105.03148v2"
+    },
+    {
+        "id": "2205.05318v1",
+        "title": "Quasi-stationary behavior for an hybrid model of chemostat: the Crump-Young model",
+        "authors": [
+            "Bertrand Cloez",
+            "Coralie Fritsch"
+        ],
+        "year": 2022,
+        "abstract": "The Crump-Young model consists of two fully coupled stochastic processes\nmodeling the substrate and microorganisms dynamics in a chemostat. Substrate\nevolves following an ordinary differential equation whose coefficients depend\nof microorganisms number. Microorganisms are modeled though a pure jump process\nwhose the jump rates depend on the substrate concentration. It goes to\nextinction almost-surely in the sense that microorganism population vanishes.\nIn this work, we show that, conditionally on the non-extinction, its\ndistribution converges exponentially fast to a quasi-stationary distribution.\nDue to the deterministic part, the dynamics of the Crump-Young model is highly\ndegenerated. The proof is then original and consists of technical sharp\nestimates and new approaches for the quasi-stationary convergence.",
+        "citations": 0,
+        "keywords": [
+            "math.PR"
+        ],
+        "url": "http://arxiv.org/abs/2205.05318v1",
+        "pdf_url": "http://arxiv.org/pdf/2205.05318v1"
+    },
+    {
+        "id": "2412.02250v1",
+        "title": "Vision Transformers for Weakly-Supervised Microorganism Enumeration",
+        "authors": [
+            "Javier Ure\u00f1a Santiago",
+            "Thomas Str\u00f6hle",
+            "Antonio Rodr\u00edguez-S\u00e1nchez",
+            "Ruth Breu"
+        ],
+        "year": 2024,
+        "abstract": "Microorganism enumeration is an essential task in many applications, such as\nassessing contamination levels or ensuring health standards when evaluating\nsurface cleanliness. However, it's traditionally performed by human-supervised\nmethods that often require manual counting, making it tedious and\ntime-consuming. Previous research suggests automating this task using computer\nvision and machine learning methods, primarily through instance segmentation or\ndensity estimation techniques. This study conducts a comparative analysis of\nvision transformers (ViTs) for weakly-supervised counting in microorganism\nenumeration, contrasting them with traditional architectures such as ResNet and\ninvestigating ViT-based models such as TransCrowd. We trained different\nversions of ViTs as the architectural backbone for feature extraction using\nfour microbiology datasets to determine potential new approaches for total\nmicroorganism enumeration in images. Results indicate that while ResNets\nperform better overall, ViTs performance demonstrates competent results across\nall datasets, opening up promising lines of research in microorganism\nenumeration. This comparative study contributes to the field of microbial image\nanalysis by presenting innovative approaches to the recurring challenge of\nmicroorganism enumeration and by highlighting the capabilities of ViTs in the\ntask of regression counting.",
+        "citations": 0,
+        "keywords": [
+            "cs.CV"
+        ],
+        "url": "http://arxiv.org/abs/2412.02250v1",
+        "pdf_url": "http://arxiv.org/pdf/2412.02250v1"
+    },
+    {
+        "id": "1712.04669v1",
+        "title": "General Quantum Theory",
+        "authors": [
+            "Koen Thas"
+        ],
+        "year": 2017,
+        "abstract": "Inspired by classical (\"actual\") Quantum Theory over $\\mathbb{C}$ and Modal\nQuantum Theory (MQT), which is a model of Quantum Theory over certain finite\nfields, we introduce General Quantum Theory as a Quantum Theory -- in the\nK{\\o}benhavn interpretation -- over general division rings with involution, in\nwhich the inner product \"is\" a $(\\sigma,1)$-Hermitian form $\\varphi$. This\nunites all known such approaches in one and the same theory, and we show that\nmany of the known results such as no-cloning, no-deleting, quantum\nteleportation and super-dense quantum coding, which are known in classical\nQuantum Theory over $\\mathbb{C}$ and in some MQTs, hold for any General Quantum\nTheory. On the other hand, in many General Quantum Theories, a geometrical\nobject which we call \"quantum kernel\" arises, which is invariant under the\nunitary group $\\mathbf{U}(V,\\varphi)$, and which carries the geometry of a\nso-called polar space. We use this object to construct new quantum\n(teleportation) coding schemes, which mix quantum theory with the geometry of\nthe quantum kernel (and the action of the unitary group). We also show that in\ncharacteristic $0$, every General Quantum Theory over an algebraically closed\nfield behaves like classical Quantum Theory over $\\mathbb{C}$ at many levels,\nand that all such theories share one model, which we pin down as the \"minimal\nmodel,\" which is countable and defined over $\\overline{\\mathbb{Q}}$. Moreover,\nto make the analogy with classical Quantum Theory even more striking, we show\nthat Born's rule holds in any such theory. So all such theories are not modal\nat all. Finally, we obtain an extension theory for General Quantum Theories in\ncharacteristic $0$ which allows one to extend any such theory over\nalgebraically closed fields (such as classical complex Quantum Theory) to\nlarger theories in which a quantum kernel is present.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/1712.04669v1",
+        "pdf_url": "http://arxiv.org/pdf/1712.04669v1"
+    },
+    {
+        "id": "9510005v1",
+        "title": "Quantum algorithmic information theory",
+        "authors": [
+            "Karl Svozil"
+        ],
+        "year": 1995,
+        "abstract": "The agenda of quantum algorithmic information theory, ordered `top-down,' is\nthe quantum halting amplitude, followed by the quantum algorithmic information\ncontent, which in turn requires the theory of quantum computation. The\nfundamental atoms processed by quantum computation are the quantum bits which\nare dealt with in quantum information theory. The theory of quantum computation\nwill be based upon a model of universal quantum computer whose elementary unit\nis a two-port interferometer capable of arbitrary $U(2)$ transformations. Basic\nto all these considerations is quantum theory, in particular Hilbert space\nquantum mechanics.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/9510005v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/9510005v1"
+    },
+    {
+        "id": "0305017v1",
+        "title": "Quantum computer: an appliance for playing market games",
+        "authors": [
+            "Edward W. Piotrowski",
+            "Jan Sladkowski"
+        ],
+        "year": 2003,
+        "abstract": "Recent development in quantum computation and quantum information theory\nallows to extend the scope of game theory for the quantum world. The authors\nhave recently proposed a quantum description of financial market in terms of\nquantum game theory. The paper contain an analysis of such markets that shows\nthat there would be advantage in using quantum computers and quantum\nstrategies.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "cond-mat",
+            "cs.GT"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/0305017v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/0305017v1"
+    },
+    {
+        "id": "9812037v4",
+        "title": "Quantum Topology, Quantum Topodynamics, Differential Topology in Quantum Space, Gauge Theory of Gravitation",
+        "authors": [
+            "Diaa A Ahmed"
+        ],
+        "year": 1998,
+        "abstract": "\"Quantum Topology\" deals with the general quantum theory as the theory of the\nfunctional quantum space; space time and energy momentum forms form a connected\nmanifold; a functional quantum space on the quantum level. The general quantum\ntheory derives from the topology of the quantum space.\n  \"Quantum Topodynamics\" derives from quantum topology, it deals with the set\nthat underlies the assumed one structure of the topology, group and logic\nstructure of the quantum space. The underlying structure was founded on the\nFourier representation of the functional space.\n  \"Differential Topology in Quantum Space\" deals with the method of analysis\napproperiate for the quantum space; based on the Fourier representation of the\nfunctional space.\n  \"Gauge Theory of Gravitation\" deals with gravitation as a quantum topological\nphenomenon; by introducing the effect of gravitation into the quantum space\nthrough a phase angle; this displays its unity with the rest of the gauge\ninteractions and shows that the manifold is compact.",
+        "citations": 0,
+        "keywords": [
+            "physics.gen-ph"
+        ],
+        "url": "http://arxiv.org/abs/physics/9812037v4",
+        "pdf_url": "http://arxiv.org/pdf/physics/9812037v4"
+    },
+    {
+        "id": "1210.0944v1",
+        "title": "Reverse Engineering Quantum Field Theory",
+        "authors": [
+            "Robert Oeckl"
+        ],
+        "year": 2012,
+        "abstract": "An approach to the foundations of quantum theory is advertised that proceeds\nby \"reverse engineering\" quantum field theory. As a concrete instance of this\napproach, the general boundary formulation of quantum theory is outlined.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "gr-qc",
+            "hep-th"
+        ],
+        "url": "http://arxiv.org/abs/1210.0944v1",
+        "pdf_url": "http://arxiv.org/pdf/1210.0944v1"
+    },
+    {
+        "id": "1712.04669v1",
+        "title": "General Quantum Theory",
+        "authors": [
+            "Koen Thas"
+        ],
+        "year": 2017,
+        "abstract": "Inspired by classical (\"actual\") Quantum Theory over $\\mathbb{C}$ and Modal\nQuantum Theory (MQT), which is a model of Quantum Theory over certain finite\nfields, we introduce General Quantum Theory as a Quantum Theory -- in the\nK{\\o}benhavn interpretation -- over general division rings with involution, in\nwhich the inner product \"is\" a $(\\sigma,1)$-Hermitian form $\\varphi$. This\nunites all known such approaches in one and the same theory, and we show that\nmany of the known results such as no-cloning, no-deleting, quantum\nteleportation and super-dense quantum coding, which are known in classical\nQuantum Theory over $\\mathbb{C}$ and in some MQTs, hold for any General Quantum\nTheory. On the other hand, in many General Quantum Theories, a geometrical\nobject which we call \"quantum kernel\" arises, which is invariant under the\nunitary group $\\mathbf{U}(V,\\varphi)$, and which carries the geometry of a\nso-called polar space. We use this object to construct new quantum\n(teleportation) coding schemes, which mix quantum theory with the geometry of\nthe quantum kernel (and the action of the unitary group). We also show that in\ncharacteristic $0$, every General Quantum Theory over an algebraically closed\nfield behaves like classical Quantum Theory over $\\mathbb{C}$ at many levels,\nand that all such theories share one model, which we pin down as the \"minimal\nmodel,\" which is countable and defined over $\\overline{\\mathbb{Q}}$. Moreover,\nto make the analogy with classical Quantum Theory even more striking, we show\nthat Born's rule holds in any such theory. So all such theories are not modal\nat all. Finally, we obtain an extension theory for General Quantum Theories in\ncharacteristic $0$ which allows one to extend any such theory over\nalgebraically closed fields (such as classical complex Quantum Theory) to\nlarger theories in which a quantum kernel is present.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/1712.04669v1",
+        "pdf_url": "http://arxiv.org/pdf/1712.04669v1"
+    },
+    {
+        "id": "9510005v1",
+        "title": "Quantum algorithmic information theory",
+        "authors": [
+            "Karl Svozil"
+        ],
+        "year": 1995,
+        "abstract": "The agenda of quantum algorithmic information theory, ordered `top-down,' is\nthe quantum halting amplitude, followed by the quantum algorithmic information\ncontent, which in turn requires the theory of quantum computation. The\nfundamental atoms processed by quantum computation are the quantum bits which\nare dealt with in quantum information theory. The theory of quantum computation\nwill be based upon a model of universal quantum computer whose elementary unit\nis a two-port interferometer capable of arbitrary $U(2)$ transformations. Basic\nto all these considerations is quantum theory, in particular Hilbert space\nquantum mechanics.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/9510005v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/9510005v1"
+    },
+    {
+        "id": "0305017v1",
+        "title": "Quantum computer: an appliance for playing market games",
+        "authors": [
+            "Edward W. Piotrowski",
+            "Jan Sladkowski"
+        ],
+        "year": 2003,
+        "abstract": "Recent development in quantum computation and quantum information theory\nallows to extend the scope of game theory for the quantum world. The authors\nhave recently proposed a quantum description of financial market in terms of\nquantum game theory. The paper contain an analysis of such markets that shows\nthat there would be advantage in using quantum computers and quantum\nstrategies.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "cond-mat",
+            "cs.GT"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/0305017v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/0305017v1"
+    },
+    {
+        "id": "9812037v4",
+        "title": "Quantum Topology, Quantum Topodynamics, Differential Topology in Quantum Space, Gauge Theory of Gravitation",
+        "authors": [
+            "Diaa A Ahmed"
+        ],
+        "year": 1998,
+        "abstract": "\"Quantum Topology\" deals with the general quantum theory as the theory of the\nfunctional quantum space; space time and energy momentum forms form a connected\nmanifold; a functional quantum space on the quantum level. The general quantum\ntheory derives from the topology of the quantum space.\n  \"Quantum Topodynamics\" derives from quantum topology, it deals with the set\nthat underlies the assumed one structure of the topology, group and logic\nstructure of the quantum space. The underlying structure was founded on the\nFourier representation of the functional space.\n  \"Differential Topology in Quantum Space\" deals with the method of analysis\napproperiate for the quantum space; based on the Fourier representation of the\nfunctional space.\n  \"Gauge Theory of Gravitation\" deals with gravitation as a quantum topological\nphenomenon; by introducing the effect of gravitation into the quantum space\nthrough a phase angle; this displays its unity with the rest of the gauge\ninteractions and shows that the manifold is compact.",
+        "citations": 0,
+        "keywords": [
+            "physics.gen-ph"
+        ],
+        "url": "http://arxiv.org/abs/physics/9812037v4",
+        "pdf_url": "http://arxiv.org/pdf/physics/9812037v4"
+    },
+    {
+        "id": "1210.0944v1",
+        "title": "Reverse Engineering Quantum Field Theory",
+        "authors": [
+            "Robert Oeckl"
+        ],
+        "year": 2012,
+        "abstract": "An approach to the foundations of quantum theory is advertised that proceeds\nby \"reverse engineering\" quantum field theory. As a concrete instance of this\napproach, the general boundary formulation of quantum theory is outlined.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "gr-qc",
+            "hep-th"
+        ],
+        "url": "http://arxiv.org/abs/1210.0944v1",
+        "pdf_url": "http://arxiv.org/pdf/1210.0944v1"
+    },
+    {
+        "id": "2306.01816v1",
+        "title": "Prediction of Citrus Diseases Using Machine Learning And Deep Learning: Classifier, Models SLR",
+        "authors": [
+            "Muhammad Shoaib Farooq",
+            "Abdullah Mehboob"
+        ],
+        "year": 2023,
+        "abstract": "Citrus diseases have been major issues for citrus growing worldwide for many\nyears they can lead significantly reduce fruit quality. the most harmful citrus\ndiseases are citrus canker, citrus greening, citrus black spot, citrus leaf\nminer which can have significant economic losses of citrus industry in\nworldwide prevention and management strategies like chemical treatments. Citrus\ndiseases existing in all over the world where citrus is growing its effects the\ncitrus tree root, citrus tree leaf, citrus tree orange etc. Existing of citrus\ndiseases is highly impact on economic factor that can also produce low quality\nfruits and increased the rate for diseases management. Sanitation and routine\nmonitoring can be effective in managing certain citrus diseases, but others may\nrequire more intensive treatments like chemical or biological control methods.",
+        "citations": 0,
+        "keywords": [
+            "cs.LG",
+            "cs.AI"
+        ],
+        "url": "http://arxiv.org/abs/2306.01816v1",
+        "pdf_url": "http://arxiv.org/pdf/2306.01816v1"
+    },
+    {
+        "id": "2105.01553v1",
+        "title": "Combining Supervised and Un-supervised Learning for Automatic Citrus Segmentation",
+        "authors": [
+            "Heqing Huang",
+            "Tongbin Huang",
+            "Zhen Li",
+            "Zhiwei Wei",
+            "Shilei Lv"
+        ],
+        "year": 2021,
+        "abstract": "Citrus segmentation is a key step of automatic citrus picking. While most\ncurrent image segmentation approaches achieve good segmentation results by\npixel-wise segmentation, these supervised learning-based methods require a\nlarge amount of annotated data, and do not consider the continuous temporal\nchanges of citrus position in real-world applications. In this paper, we first\ntrain a simple CNN with a small number of labelled citrus images in a\nsupervised manner, which can roughly predict the citrus location from each\nframe. Then, we extend a state-of-the-art unsupervised learning approach to\npre-learn the citrus's potential movements between frames from unlabelled\ncitrus's videos. To take advantages of both networks, we employ the multimodal\ntransformer to combine supervised learned static information and unsupervised\nlearned movement information. The experimental results show that combing both\nnetwork allows the prediction accuracy reached at 88.3$\\%$ IOU and 93.6$\\%$\nprecision, outperforming the original supervised baseline 1.2$\\%$ and 2.4$\\%$.\nCompared with most of the existing citrus segmentation methods, our method uses\na small amount of supervised data and a large number of unsupervised data,\nwhile learning the pixel level location information and the temporal\ninformation of citrus changes to enhance the segmentation effect.",
+        "citations": 0,
+        "keywords": [
+            "cs.CV"
+        ],
+        "url": "http://arxiv.org/abs/2105.01553v1",
+        "pdf_url": "http://arxiv.org/pdf/2105.01553v1"
+    },
+    {
+        "id": "2403.04820v1",
+        "title": "Optical Screening of Citrus Leaf Diseases Using Label-Free Spectroscopic Tools: A Review",
+        "authors": [
+            "Saurav Bharadwaj",
+            "Akshita Midha",
+            "Shikha Sharma",
+            "Gurupkar Singh Sidhu",
+            "Rajesh Kumar"
+        ],
+        "year": 2024,
+        "abstract": "Citrus diseases pose threats to citrus farming and result in economic losses\nworldwide. Nucleic acid and serology-based methods of detection and,\nimmunochromatographic assays are commonly used but these laboratory tests are\nlaborious, expensive and might be subjected to cross-reaction and\ncontamination. Modern optical spectroscopic techniques offer a promising\nalternative as they are label-free, sensitive, rapid, non-destructive, and\ndemonstrate the potential for incorporation into an autonomous system for\ndisease detection in citrus orchards. Nevertheless, the majority of optical\nspectroscopic methods for citrus disease detection are still in the trial\nphases and, require additional efforts to be established as efficient and\ncommercially viable methods. The review presents an overview of fundamental\nworking principles, the state of the art, and explains the applications and\nlimitations of the optical spectroscopy technique including the spectroscopic\nimaging approach (hyperspectral imaging) in the identification of diseases in\ncitrus plants. The review highlights (1) the technical specifications of\noptical spectroscopic tools that can potentially be utilized in field\nmeasurements, (2) their applications in screening citrus diseases through leaf\nspectroscopy, and (3) discusses their benefits and limitations, including\nfuture insights into label-free identification of citrus diseases. Moreover,\nthe role of artificial intelligence is reviewed as potential effective tools\nfor spectral analysis, enabling more accurate detection of infected citrus\nleaves even before the appearance of visual symptoms by leveraging\ncompositional, morphological, and chemometric characteristics of the plant\nleaves. The review aims to encourage stakeholders to enhance the development\nand commercialization of field-based, label-free optical tools for the rapid\nand early-stage screening of citrus diseases in plants.",
+        "citations": 0,
+        "keywords": [
+            "q-bio.OT"
+        ],
+        "url": "http://arxiv.org/abs/2403.04820v1",
+        "pdf_url": "http://arxiv.org/pdf/2403.04820v1"
+    },
+    {
+        "id": "2306.16734v1",
+        "title": "Unified View of Damage leaves Planimetry & Analysis Using Digital Images Processing Techniques",
+        "authors": [
+            "Pijush Kanti Kumar",
+            "DeepKiran Munjal",
+            "Sunita Rani",
+            "Anurag Dutta",
+            "Liton Chandra Voumik",
+            "A. Ramamoorthy"
+        ],
+        "year": 2023,
+        "abstract": "The detection of leaf diseases in plants generally involves visual\nobservation of patterns appearing on the leaf surface. However, there are many\ndiseases that are distinguished based on very subtle changes in these visually\nobservable patterns. This paper attempts to identify plant leaf diseases using\nimage processing techniques. The focus of this study is on the detection of\ncitrus leaf canker disease. Canker is a bacterial infection of leaves. Symptoms\nof citrus cankers include brown spots on the leaves, often with a watery or\noily appearance. The spots (called lesions in botany) are usually yellow. It is\nsurrounded by a halo of the leaves and is found on both the top and bottom of\nthe leaf. This paper describes various methods that have been used to detect\ncitrus leaf canker disease. The methods used are histogram comparison and\nk-means clustering. Using these methods, citrus canker development was detected\nbased on histograms generated based on leaf patterns. The results thus obtained\ncan be used, after consultation with experts in the field of agriculture, to\nidentify suitable treatments for the processes used.",
+        "citations": 0,
+        "keywords": [
+            "cs.CV"
+        ],
+        "url": "http://arxiv.org/abs/2306.16734v1",
+        "pdf_url": "http://arxiv.org/pdf/2306.16734v1"
+    },
+    {
+        "id": "2405.18877v2",
+        "title": "Continuous Product Graph Neural Networks",
+        "authors": [
+            "Aref Einizade",
+            "Fragkiskos D. Malliaros",
+            "Jhony H. Giraldo"
+        ],
+        "year": 2024,
+        "abstract": "Processing multidomain data defined on multiple graphs holds significant\npotential in various practical applications in computer science. However,\ncurrent methods are mostly limited to discrete graph filtering operations.\nTensorial partial differential equations on graphs (TPDEGs) provide a\nprincipled framework for modeling structured data across multiple interacting\ngraphs, addressing the limitations of the existing discrete methodologies. In\nthis paper, we introduce Continuous Product Graph Neural Networks (CITRUS) that\nemerge as a natural solution to the TPDEG. CITRUS leverages the separability of\ncontinuous heat kernels from Cartesian graph products to efficiently implement\ngraph spectral decomposition. We conduct thorough theoretical analyses of the\nstability and over-smoothing properties of CITRUS in response to\ndomain-specific graph perturbations and graph spectra effects on the\nperformance. We evaluate CITRUS on well-known traffic and weather\nspatiotemporal forecasting datasets, demonstrating superior performance over\nexisting approaches. The implementation codes are available at\nhttps://github.com/ArefEinizade2/CITRUS.",
+        "citations": 0,
+        "keywords": [
+            "cs.LG",
+            "cs.AI"
+        ],
+        "url": "http://arxiv.org/abs/2405.18877v2",
+        "pdf_url": "http://arxiv.org/pdf/2405.18877v2"
+    },
+    {
+        "id": "0607286v1",
+        "title": "Comment on papers hep-ph/0603166, hep-ph/0606291, hep-ph/0606310 by S.S. Afonin",
+        "authors": [
+            "A. E. Inopin"
+        ],
+        "year": 2006,
+        "abstract": "This is a Comment to the recent 3 papers by S.S. Afonin",
+        "citations": 0,
+        "keywords": [
+            "hep-ph"
+        ],
+        "url": "http://arxiv.org/abs/hep-ph/0607286v1",
+        "pdf_url": "http://arxiv.org/pdf/hep-ph/0607286v1"
+    },
+    {
+        "id": "1607.07924v1",
+        "title": "SS-Injective Modules and Rings",
+        "authors": [
+            "Adel Salim Tayyah",
+            "Akeel Ramadan Mehdi"
+        ],
+        "year": 2016,
+        "abstract": "We introduce and investigate ss-injectivity as a generalization of both\nsoc-injectivity and small injectivity. A module M is said to be ss-N-injective\n(where N is a module) if every R-homomorphism from a semisimple small submodule\nof N into M extends to N. A module M is said to be ss-injective (resp. strongly\nss-injective), if M is ss-R-injective (resp. ss-N-injective for every right\nR-module N). Some characterizations and properties of (strongly) ss-injective\nmodules and rings are given. Some results of Amin, Yuosif and Zeyada on\nsoc-injectivity are extended to ss-injectivity. Also, we provide some new\ncharacterizations of universally mininjective rings, quasi-Frobenius rings,\nArtinian rings and semisimple rings.",
+        "citations": 0,
+        "keywords": [
+            "math.RA"
+        ],
+        "url": "http://arxiv.org/abs/1607.07924v1",
+        "pdf_url": "http://arxiv.org/pdf/1607.07924v1"
+    },
+    {
+        "id": "0104414v1",
+        "title": "Parametric generation of second sound in superfluid helium: linear stability and nonlinear dynamics",
+        "authors": [
+            "Dmitry Rinberg",
+            "Victor Steinberg"
+        ],
+        "year": 2001,
+        "abstract": "We report the experimental studies of a parametric excitation of a second\nsound (SS) by a first sound (FS) in a superfluid helium in a resonance cavity.\nThe results on several topics in this system are presented: (i) The linear\nproperties of the instability, namely, the threshold, its temperature and\ngeometrical dependencies, and the spectra of SS just above the onset were\nmeasured. They were found to be in a good quantitative agreement with the\ntheory. (ii) It was shown that the mechanism of SS amplitude saturation is due\nto the nonlinear attenuation of SS via three wave interactions between the SS\nwaves. Strong low frequency amplitude fluctuations of SS above the threshold\nwere observed. The spectra of these fluctuations had a universal shape with\nexponentially decaying tails. Furthermore, the spectral width grew continuously\nwith the FS amplitude. The role of three and four wave interactions are\ndiscussed with respect to the nonlinear SS behavior. The first evidence of\nGaussian statistics of the wave amplitudes for the parametrically generated\nwave ensemble was obtained. (iii) The experiments on simultaneous pumping of\nthe FS and independent SS waves revealed new effects. Below the instability\nthreshold, the SS phase conjugation as a result of three-wave interactions\nbetween the FS and SS waves was observed. Above the threshold two new effects\nwere found: a giant amplification of the SS wave intensity and strong resonance\noscillations of the SS wave amplitude as a function of the FS amplitude.\nQualitative explanations of these effects are suggested.",
+        "citations": 0,
+        "keywords": [
+            "cond-mat.soft",
+            "nlin.CD",
+            "nlin.PS"
+        ],
+        "url": "http://arxiv.org/abs/cond-mat/0104414v1",
+        "pdf_url": "http://arxiv.org/pdf/cond-mat/0104414v1"
+    },
+    {
+        "id": "0506065v1",
+        "title": "Strongly secure ramp secret sharing schemes for general access structures",
+        "authors": [
+            "Mitsugu Iwamoto",
+            "Hirosuke Yamamoto"
+        ],
+        "year": 2005,
+        "abstract": "Ramp secret sharing (SS) schemes can be classified into strong ramp SS\nschemes and weak ramp SS schemes. The strong ramp SS schemes do not leak out\nany part of a secret explicitly even in the case where some information about\nthe secret leaks from a non-qualified set of shares, and hence, they are more\ndesirable than weak ramp SS schemes. However, it is not known how to construct\nthe strong ramp SS schemes in the case of general access structures. In this\npaper, it is shown that a strong ramp SS scheme can always be constructed from\na SS scheme with plural secrets for any feasible general access structure. As a\nbyproduct, it is pointed out that threshold ramp SS schemes based on Shamir's\npolynomial interpolation method are {\\em not} always strong.",
+        "citations": 0,
+        "keywords": [
+            "cs.CR",
+            "cs.IT",
+            "math.IT"
+        ],
+        "url": "http://arxiv.org/abs/cs/0506065v1",
+        "pdf_url": "http://arxiv.org/pdf/cs/0506065v1"
+    },
+    {
+        "id": "2209.00107v3",
+        "title": "Equivalence of SS-based MPC and ARX-based MPC",
+        "authors": [
+            "Liang Wu"
+        ],
+        "year": 2022,
+        "abstract": "Two kinds of control-oriented models used in MPC are the state-space (SS)\nmodel and the input-output model (such as the ARX model). The SS model has\ninterpretability when obtained from the modeling paradigm, and the ARX model is\nblack-box but adaptable. This paper aims to introduce interpretability into ARX\nmodels, thereby proposing a first-principle-based modeling paradigm for\nacquiring control-oriented ARX models, as an alternative to the existing\ndata-driven ARX identification paradigm. That is, first to obtain\ninterpretative SS models via linearizing the first-principle-based models at\ninteresting points and then to transform interpretative SS models into their\nequivalent ARX models via the SS-to-ARX transformations. This paper presents\nthe Cayley-Hamilton, Observer-Theory, and Kalman Filter based SS-to-ARX\ntransformations, further showing that choosing the ARX model order should\ndepend on the process noise to achieve a good closed-loop performance rather\nthan the fitting criteria in data-driven ARX identification paradigm. An\nAFTI-16 MPC example is used to illustrate the equivalence of SS-based MPC and\nARX-based MPC problems and to investigate the robustness of different SS-to-ARX\ntransformations to noise.",
+        "citations": 0,
+        "keywords": [
+            "eess.SY",
+            "cs.SY"
+        ],
+        "url": "http://arxiv.org/abs/2209.00107v3",
+        "pdf_url": "http://arxiv.org/pdf/2209.00107v3"
+    },
+    {
+        "id": "1712.04669v1",
+        "title": "General Quantum Theory",
+        "authors": [
+            "Koen Thas"
+        ],
+        "year": 2017,
+        "abstract": "Inspired by classical (\"actual\") Quantum Theory over $\\mathbb{C}$ and Modal\nQuantum Theory (MQT), which is a model of Quantum Theory over certain finite\nfields, we introduce General Quantum Theory as a Quantum Theory -- in the\nK{\\o}benhavn interpretation -- over general division rings with involution, in\nwhich the inner product \"is\" a $(\\sigma,1)$-Hermitian form $\\varphi$. This\nunites all known such approaches in one and the same theory, and we show that\nmany of the known results such as no-cloning, no-deleting, quantum\nteleportation and super-dense quantum coding, which are known in classical\nQuantum Theory over $\\mathbb{C}$ and in some MQTs, hold for any General Quantum\nTheory. On the other hand, in many General Quantum Theories, a geometrical\nobject which we call \"quantum kernel\" arises, which is invariant under the\nunitary group $\\mathbf{U}(V,\\varphi)$, and which carries the geometry of a\nso-called polar space. We use this object to construct new quantum\n(teleportation) coding schemes, which mix quantum theory with the geometry of\nthe quantum kernel (and the action of the unitary group). We also show that in\ncharacteristic $0$, every General Quantum Theory over an algebraically closed\nfield behaves like classical Quantum Theory over $\\mathbb{C}$ at many levels,\nand that all such theories share one model, which we pin down as the \"minimal\nmodel,\" which is countable and defined over $\\overline{\\mathbb{Q}}$. Moreover,\nto make the analogy with classical Quantum Theory even more striking, we show\nthat Born's rule holds in any such theory. So all such theories are not modal\nat all. Finally, we obtain an extension theory for General Quantum Theories in\ncharacteristic $0$ which allows one to extend any such theory over\nalgebraically closed fields (such as classical complex Quantum Theory) to\nlarger theories in which a quantum kernel is present.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/1712.04669v1",
+        "pdf_url": "http://arxiv.org/pdf/1712.04669v1"
+    },
+    {
+        "id": "9510005v1",
+        "title": "Quantum algorithmic information theory",
+        "authors": [
+            "Karl Svozil"
+        ],
+        "year": 1995,
+        "abstract": "The agenda of quantum algorithmic information theory, ordered `top-down,' is\nthe quantum halting amplitude, followed by the quantum algorithmic information\ncontent, which in turn requires the theory of quantum computation. The\nfundamental atoms processed by quantum computation are the quantum bits which\nare dealt with in quantum information theory. The theory of quantum computation\nwill be based upon a model of universal quantum computer whose elementary unit\nis a two-port interferometer capable of arbitrary $U(2)$ transformations. Basic\nto all these considerations is quantum theory, in particular Hilbert space\nquantum mechanics.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/9510005v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/9510005v1"
+    },
+    {
+        "id": "0305017v1",
+        "title": "Quantum computer: an appliance for playing market games",
+        "authors": [
+            "Edward W. Piotrowski",
+            "Jan Sladkowski"
+        ],
+        "year": 2003,
+        "abstract": "Recent development in quantum computation and quantum information theory\nallows to extend the scope of game theory for the quantum world. The authors\nhave recently proposed a quantum description of financial market in terms of\nquantum game theory. The paper contain an analysis of such markets that shows\nthat there would be advantage in using quantum computers and quantum\nstrategies.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "cond-mat",
+            "cs.GT"
+        ],
+        "url": "http://arxiv.org/abs/quant-ph/0305017v1",
+        "pdf_url": "http://arxiv.org/pdf/quant-ph/0305017v1"
+    },
+    {
+        "id": "9812037v4",
+        "title": "Quantum Topology, Quantum Topodynamics, Differential Topology in Quantum Space, Gauge Theory of Gravitation",
+        "authors": [
+            "Diaa A Ahmed"
+        ],
+        "year": 1998,
+        "abstract": "\"Quantum Topology\" deals with the general quantum theory as the theory of the\nfunctional quantum space; space time and energy momentum forms form a connected\nmanifold; a functional quantum space on the quantum level. The general quantum\ntheory derives from the topology of the quantum space.\n  \"Quantum Topodynamics\" derives from quantum topology, it deals with the set\nthat underlies the assumed one structure of the topology, group and logic\nstructure of the quantum space. The underlying structure was founded on the\nFourier representation of the functional space.\n  \"Differential Topology in Quantum Space\" deals with the method of analysis\napproperiate for the quantum space; based on the Fourier representation of the\nfunctional space.\n  \"Gauge Theory of Gravitation\" deals with gravitation as a quantum topological\nphenomenon; by introducing the effect of gravitation into the quantum space\nthrough a phase angle; this displays its unity with the rest of the gauge\ninteractions and shows that the manifold is compact.",
+        "citations": 0,
+        "keywords": [
+            "physics.gen-ph"
+        ],
+        "url": "http://arxiv.org/abs/physics/9812037v4",
+        "pdf_url": "http://arxiv.org/pdf/physics/9812037v4"
+    },
+    {
+        "id": "1210.0944v1",
+        "title": "Reverse Engineering Quantum Field Theory",
+        "authors": [
+            "Robert Oeckl"
+        ],
+        "year": 2012,
+        "abstract": "An approach to the foundations of quantum theory is advertised that proceeds\nby \"reverse engineering\" quantum field theory. As a concrete instance of this\napproach, the general boundary formulation of quantum theory is outlined.",
+        "citations": 0,
+        "keywords": [
+            "quant-ph",
+            "gr-qc",
+            "hep-th"
+        ],
+        "url": "http://arxiv.org/abs/1210.0944v1",
+        "pdf_url": "http://arxiv.org/pdf/1210.0944v1"
+    }
+]

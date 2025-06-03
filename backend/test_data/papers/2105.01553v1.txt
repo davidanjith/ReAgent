@@ -1,0 +1,18 @@
+Citrus segmentation is a key step of automatic citrus picking. While most
+current image segmentation approaches achieve good segmentation results by
+pixel-wise segmentation, these supervised learning-based methods require a
+large amount of annotated data, and do not consider the continuous temporal
+changes of citrus position in real-world applications. In this paper, we first
+train a simple CNN with a small number of labelled citrus images in a
+supervised manner, which can roughly predict the citrus location from each
+frame. Then, we extend a state-of-the-art unsupervised learning approach to
+pre-learn the citrus's potential movements between frames from unlabelled
+citrus's videos. To take advantages of both networks, we employ the multimodal
+transformer to combine supervised learned static information and unsupervised
+learned movement information. The experimental results show that combing both
+network allows the prediction accuracy reached at 88.3$\%$ IOU and 93.6$\%$
+precision, outperforming the original supervised baseline 1.2$\%$ and 2.4$\%$.
+Compared with most of the existing citrus segmentation methods, our method uses
+a small amount of supervised data and a large number of unsupervised data,
+while learning the pixel level location information and the temporal
+information of citrus changes to enhance the segmentation effect.

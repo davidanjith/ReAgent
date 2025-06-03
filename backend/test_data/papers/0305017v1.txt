@@ -1,0 +1,6 @@
+Recent development in quantum computation and quantum information theory
+allows to extend the scope of game theory for the quantum world. The authors
+have recently proposed a quantum description of financial market in terms of
+quantum game theory. The paper contain an analysis of such markets that shows
+that there would be advantage in using quantum computers and quantum
+strategies.

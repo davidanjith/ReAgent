@@ -1,0 +1,21 @@
+We report the experimental studies of a parametric excitation of a second
+sound (SS) by a first sound (FS) in a superfluid helium in a resonance cavity.
+The results on several topics in this system are presented: (i) The linear
+properties of the instability, namely, the threshold, its temperature and
+geometrical dependencies, and the spectra of SS just above the onset were
+measured. They were found to be in a good quantitative agreement with the
+theory. (ii) It was shown that the mechanism of SS amplitude saturation is due
+to the nonlinear attenuation of SS via three wave interactions between the SS
+waves. Strong low frequency amplitude fluctuations of SS above the threshold
+were observed. The spectra of these fluctuations had a universal shape with
+exponentially decaying tails. Furthermore, the spectral width grew continuously
+with the FS amplitude. The role of three and four wave interactions are
+discussed with respect to the nonlinear SS behavior. The first evidence of
+Gaussian statistics of the wave amplitudes for the parametrically generated
+wave ensemble was obtained. (iii) The experiments on simultaneous pumping of
+the FS and independent SS waves revealed new effects. Below the instability
+threshold, the SS phase conjugation as a result of three-wave interactions
+between the FS and SS waves was observed. Above the threshold two new effects
+were found: a giant amplification of the SS wave intensity and strong resonance
+oscillations of the SS wave amplitude as a function of the FS amplitude.
+Qualitative explanations of these effects are suggested.

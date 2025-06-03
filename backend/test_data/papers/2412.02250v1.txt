@@ -1,0 +1,19 @@
+Microorganism enumeration is an essential task in many applications, such as
+assessing contamination levels or ensuring health standards when evaluating
+surface cleanliness. However, it's traditionally performed by human-supervised
+methods that often require manual counting, making it tedious and
+time-consuming. Previous research suggests automating this task using computer
+vision and machine learning methods, primarily through instance segmentation or
+density estimation techniques. This study conducts a comparative analysis of
+vision transformers (ViTs) for weakly-supervised counting in microorganism
+enumeration, contrasting them with traditional architectures such as ResNet and
+investigating ViT-based models such as TransCrowd. We trained different
+versions of ViTs as the architectural backbone for feature extraction using
+four microbiology datasets to determine potential new approaches for total
+microorganism enumeration in images. Results indicate that while ResNets
+perform better overall, ViTs performance demonstrates competent results across
+all datasets, opening up promising lines of research in microorganism
+enumeration. This comparative study contributes to the field of microbial image
+analysis by presenting innovative approaches to the recurring challenge of
+microorganism enumeration and by highlighting the capabilities of ViTs in the
+task of regression counting.
