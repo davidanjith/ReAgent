@@ -1,15 +1,19 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from core_agent.paper_search import PaperSearch
 from core_agent.pdf_parser import PDFParser
+from core_agent.embedding.ollama_embedder import OllamaEmbedder
+from core_agent.vector_store.redis_store import RedisVectorStore
 import traceback
 import logging
 import sys
 from datetime import datetime
 import time
 from core_agent.summary_pipeline import summarize_topic
+import json
+import requests
 
 # Configure root logger
 root_logger = logging.getLogger()
@@ -68,6 +72,14 @@ except Exception as e:
     logger.error(f"Failed to initialize PDFParser: {str(e)}")
     raise
 
+try:
+    embedder = OllamaEmbedder()
+    vector_store = RedisVectorStore()
+    logger.info("Embedding and vector store services initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize embedding services: {str(e)}")
+    raise
+
 # Include the routers with logging
 logger.info("Including API routers...")
 logger.info("API routers included successfully")
@@ -83,6 +95,19 @@ class SummarizeRequest(BaseModel):
 class HighlightRequest(BaseModel):
     text: str
     paper_id: str
+
+class EmbedPaperRequest(BaseModel):
+    paper_id: str
+
+class ChatRequest(BaseModel):
+    message: str
+    paper_id: str
+    max_context_chunks: Optional[int] = 10
+
+class ChatResponse(BaseModel):
+    response: str
+    context: List[Dict[str, Any]]
+    metadata: Dict[str, Any]
 
 @app.post("/search/")
 async def search_papers(request: SearchRequest):
@@ -177,6 +202,238 @@ async def summarize_papers(request: SummarizeRequest):
             
     except Exception as e:
         logger.error(f"[{request_id}] Error in summarize_papers: {str(e)}")
+        logger.error(f"[{request_id}] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/embed-paper/")
+async def embed_paper(request: EmbedPaperRequest):
+    request_id = f"embed_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    logger.info(f"[{request_id}] Starting paper embedding for paper_id: {request.paper_id}")
+    
+    try:
+        # Load the parsed paper JSON
+        parsed_path = pdf_parser.parsed_dir / f"{request.paper_id}_parsed.json"
+        if not parsed_path.exists():
+            raise HTTPException(status_code=404, detail=f"No parsed paper found for ID: {request.paper_id}")
+        
+        logger.info(f"[{request_id}] Loading parsed paper from {parsed_path}")
+        with open(parsed_path, 'r', encoding='utf-8') as f:
+            paper_data = json.load(f)
+        
+        # Create embeddings for each section
+        sections = paper_data.get("sections", {})
+        logger.info(f"[{request_id}] Found {len(sections)} sections to embed")
+        
+        section_embeddings = {}
+        for section_name, section_text in sections.items():
+            logger.info(f"[{request_id}] Embedding section: {section_name}")
+            logger.info(f"[{request_id}] Section text length: {len(section_text)}")
+            
+            # Truncate text if too long (some models have token limits)
+            if len(section_text) > 10000:
+                section_text = section_text[:10000]
+                logger.info(f"[{request_id}] Truncated section text to 10000 characters")
+            
+            embedding = embedder.get_embedding(section_text)
+            if embedding:
+                logger.info(f"[{request_id}] Successfully generated embedding for section {section_name} with dimension {len(embedding)}")
+                # Store in vector store
+                doc_id = vector_store.store_document(
+                    text=section_text,
+                    embedding=embedding,
+                    metadata={
+                        "paper_id": request.paper_id,
+                        "section": section_name,
+                        "title": paper_data.get("title", ""),
+                        "authors": paper_data.get("authors", [])
+                    }
+                )
+                section_embeddings[section_name] = doc_id
+                logger.info(f"[{request_id}] Stored section {section_name} with doc_id: {doc_id}")
+            else:
+                logger.error(f"[{request_id}] Failed to generate embedding for section {section_name}")
+        
+        if not section_embeddings:
+            logger.error(f"[{request_id}] No sections were successfully embedded")
+            raise HTTPException(status_code=500, detail="Failed to generate embeddings for any sections")
+        
+        logger.info(f"[{request_id}] Successfully embedded {len(section_embeddings)} sections")
+        
+        # Verify embeddings were stored
+        all_keys = vector_store.vector_client.keys("embedding:*")
+        logger.info(f"[{request_id}] Found {len(all_keys)} total embeddings in Redis")
+        
+        return {
+            "paper_id": request.paper_id,
+            "title": paper_data.get("title", ""),
+            "sections_embedded": list(section_embeddings.keys()),
+            "section_ids": section_embeddings,
+            "total_embeddings": len(all_keys)
+        }
+            
+    except Exception as e:
+        logger.error(f"[{request_id}] Error in embed_paper: {str(e)}")
+        logger.error(f"[{request_id}] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/chat/", response_model=ChatResponse)
+async def chat_with_paper(request: ChatRequest):
+    request_id = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    logger.info(f"[{request_id}] Starting chat for paper_id: {request.paper_id}")
+    
+    try:
+        # Get embedding for the user's message
+        message_embedding = embedder.get_embedding(request.message)
+        if not message_embedding:
+            raise HTTPException(status_code=500, detail="Failed to generate message embedding")
+        
+        logger.info(f"[{request_id}] Generated message embedding with dimension: {len(message_embedding)}")
+        
+        # Search for relevant context
+        similar_docs = vector_store.search_similar(
+            query_embedding=message_embedding,
+            paper_id=request.paper_id,
+            top_k=request.max_context_chunks
+        )
+        
+        logger.info(f"[{request_id}] Found {len(similar_docs)} similar documents")
+        
+        # Prepare context for the LLM
+        context = []
+        for doc in similar_docs:
+            context.append({
+                "text": doc["text"],
+                "section": doc["metadata"].get("section", "Unknown"),
+                "relevance_score": doc["score"]
+            })
+            logger.info(f"[{request_id}] Added section {doc['metadata'].get('section', 'Unknown')} with score {doc['score']}")
+        
+        logger.info(f"[{request_id}] Found {len(context)} relevant sections from paper {request.paper_id}")
+        
+        if not context:
+            # If no context found, try to load the entire paper as fallback
+            logger.info(f"[{request_id}] No relevant sections found, attempting to load entire paper as fallback")
+            try:
+                # Load the parsed paper JSON
+                parsed_path = pdf_parser.parsed_dir / f"{request.paper_id}_parsed.json"
+                if parsed_path.exists():
+                    with open(parsed_path, 'r', encoding='utf-8') as f:
+                        paper_data = json.load(f)
+                    
+                    # Format the entire paper content
+                    full_context = []
+                    for section_name, section_text in paper_data.get("sections", {}).items():
+                        full_context.append({
+                            "text": section_text,
+                            "section": section_name,
+                            "relevance_score": 1.0  # Full relevance since we're using everything
+                        })
+                    
+                    if full_context:
+                        logger.info(f"[{request_id}] Successfully loaded entire paper as fallback")
+                        context = full_context
+                    else:
+                        logger.warning(f"[{request_id}] Paper exists but has no sections")
+                else:
+                    logger.warning(f"[{request_id}] Paper {request.paper_id} not found in parsed directory")
+            except Exception as e:
+                logger.error(f"[{request_id}] Error loading paper as fallback: {str(e)}")
+        
+        if not context:
+            return ChatResponse(
+                response="I couldn't find any information about this paper. Please make sure the paper has been embedded first using the /embed-paper/ endpoint.",
+                context=[],
+                metadata={
+                    "paper_id": request.paper_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "context_sections": [],
+                    "error": "Paper not found"
+                }
+            )
+        
+        # Format context into a prompt
+        context_text = "\n\n".join([
+            f"Section: {c['section']}\nRelevance Score: {c['relevance_score']:.2f}\nContent: {c['text']}"
+            for c in context
+        ])
+        
+        # Adjust prompt based on whether we're using RAG or fallback
+        if len(context) > request.max_context_chunks:
+            prompt = f"""You are a helpful research assistant. I'm providing you with the entire paper content to answer the user's question.
+Please analyze the paper and provide a comprehensive answer.
+
+Paper content:
+{context_text}
+
+User's question: {request.message}
+
+Please provide a detailed answer based on the paper's content:"""
+        else:
+            prompt = f"""You are a helpful research assistant. Use the following context from a research paper to answer the user's question.
+If the context doesn't contain enough information to answer the question, say so.
+
+Context from the paper:
+{context_text}
+
+User's question: {request.message}
+
+Please provide a detailed answer based on the paper's content:"""
+        
+        # Get response from Ollama
+        try:
+            logger.info(f"[{request_id}] Sending request to Ollama API")
+            response = requests.post(
+                "http://localhost:11434/api/generate",
+                json={
+                    "model": "llama3:latest",
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.7,
+                        "top_p": 0.9,
+                        "max_tokens": 2000
+                    }
+                },
+                timeout=30  # Add timeout
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"[{request_id}] Ollama API returned status code {response.status_code}")
+                logger.error(f"[{request_id}] Response content: {response.text}")
+                raise Exception(f"Ollama API returned status code {response.status_code}")
+            
+            response_data = response.json()
+            if "response" not in response_data:
+                logger.error(f"[{request_id}] Unexpected Ollama API response format: {response_data}")
+                raise Exception("Unexpected Ollama API response format")
+            
+            llm_response = response_data["response"].strip()
+            logger.info(f"[{request_id}] Successfully received response from Ollama API")
+            
+        except requests.exceptions.Timeout:
+            logger.error(f"[{request_id}] Ollama API request timed out")
+            llm_response = "I apologize, but the request timed out. Please try again."
+        except requests.exceptions.ConnectionError:
+            logger.error(f"[{request_id}] Failed to connect to Ollama API")
+            llm_response = "I apologize, but I couldn't connect to the language model. Please make sure Ollama is running."
+        except Exception as e:
+            logger.error(f"[{request_id}] Error getting response from Ollama: {str(e)}")
+            llm_response = "I apologize, but I encountered an error while trying to generate a response. Please try again."
+        
+        return ChatResponse(
+            response=llm_response,
+            context=context,
+            metadata={
+                "paper_id": request.paper_id,
+                "timestamp": datetime.now().isoformat(),
+                "context_sections": [c["section"] for c in context],
+                "relevance_scores": [c["relevance_score"] for c in context],
+                "used_fallback": len(context) > request.max_context_chunks
+            }
+        )
+            
+    except Exception as e:
+        logger.error(f"[{request_id}] Error in chat_with_paper: {str(e)}")
         logger.error(f"[{request_id}] Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 

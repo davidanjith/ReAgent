@@ -5,6 +5,11 @@ interface Message {
   content: string
   role: 'user' | 'assistant'
   timestamp: Date
+  context?: Array<{
+    text: string
+    section: string
+    relevance_score: number
+  }>
 }
 
 interface ChatHandle {
@@ -26,20 +31,17 @@ const Chat = forwardRef<ChatHandle, ChatProps>(({ paperId, paperTitle, paperAbst
   // Generate and store embeddings when a paper is selected
   useEffect(() => {
     const generateEmbeddings = async () => {
-      if (!paperId || !paperTitle || !paperAbstract) return
+      if (!paperId) return
 
       setEmbeddingStatus('loading')
       try {
-        const response = await fetch('http://localhost:8000/chat/embed-paper', {
+        const response = await fetch('http://localhost:8000/embed-paper/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            paper_id: paperId,
-            title: paperTitle,
-            abstract: paperAbstract,
-            content: paperContent,
+            paper_id: paperId
           }),
         })
 
@@ -55,11 +57,11 @@ const Chat = forwardRef<ChatHandle, ChatProps>(({ paperId, paperTitle, paperAbst
     }
 
     generateEmbeddings()
-  }, [paperId, paperTitle, paperAbstract, paperContent])
+  }, [paperId])
 
   useImperativeHandle(ref, () => ({
     sendMessage: async (message: string) => {
-      if (!message.trim() || loading) return
+      if (!message.trim() || loading || !paperId) return
 
       const userMessage: Message = {
         id: Date.now().toString(),
@@ -72,15 +74,15 @@ const Chat = forwardRef<ChatHandle, ChatProps>(({ paperId, paperTitle, paperAbst
       setLoading(true)
 
       try {
-        const response = await fetch('http://localhost:8000/chat/papers', {
+        const response = await fetch('http://localhost:8000/chat/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            question: message,
-            multi_doc: false,
+            message: message,
             paper_id: paperId,
+            max_context_chunks: 10
           }),
         })
 
@@ -94,6 +96,7 @@ const Chat = forwardRef<ChatHandle, ChatProps>(({ paperId, paperTitle, paperAbst
           content: data.response,
           role: 'assistant',
           timestamp: new Date(),
+          context: data.context
         }
 
         setMessages((prev) => [...prev, assistantMessage])

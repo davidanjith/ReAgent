@@ -10,12 +10,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class OllamaEmbedder:
-    def __init__(self, model: str = "nomic-embed-text:latest", api_url: str = "http://localhost:11434/api/embeddings"):
+    def __init__(self, model: str = "nomic-embed-text:v1.5", api_url: str = "http://localhost:11434/api/embeddings"):
         """
         Initialize the Ollama embedder.
         
         Args:
-            model (str): The embedding model to use (default: "nomic-embed-text:latest")
+            model (str): The embedding model to use (default: "nomic-embed-text:v1.5")
             api_url (str): The Ollama API endpoint for embeddings
         """
         self.model = model
@@ -40,7 +40,12 @@ class OllamaEmbedder:
                 }
             )
             response.raise_for_status()
-            return response.json()["embedding"]
+            embedding = response.json()["embedding"]
+            
+            # Log embedding dimension for debugging
+            print(f"Generated embedding with dimension: {len(embedding)}")
+            
+            return embedding
         except Exception as e:
             print(f"Error generating embedding: {str(e)}")
             return None
